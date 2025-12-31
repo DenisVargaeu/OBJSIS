@@ -1,0 +1,112 @@
+/* assets/css/page_tables.css */
+
+.tables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+}
+
+.table-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.table-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--text-muted);
+    transition: background 0.3s;
+}
+
+.table-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.table-icon {
+    font-size: 3rem;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    transition: color 0.3s;
+}
+
+.table-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.table-capacity {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* Status States */
+.status-free .table-card::before {
+    background: var(--success);
+}
+
+.status-free .table-icon {
+    color: var(--success);
+    opacity: 0.8;
+}
+
+.status-free:hover {
+    border-color: var(--success);
+}
+
+.status-occupied .table-card::before {
+    background: var(--danger);
+}
+
+.status-occupied .table-icon {
+    color: var(--danger);
+    opacity: 0.8;
+}
+
+.status-occupied:hover {
+    border-color: var(--danger);
+}
+
+.status-reserved .table-card::before {
+    background: var(--warning);
+}
+
+.status-reserved .table-icon {
+    color: var(--warning);
+    opacity: 0.8;
+}
+
+/* Add Button Card */
+.add-table-card {
+    border: 2px dashed var(--border-color);
+    background: transparent;
+}
+
+.add-table-card:hover {
+    border-color: var(--primary-color);
+    background: rgba(249, 115, 22, 0.05);
+}
+
+.add-table-card .table-icon {
+    color: var(--primary-color);
+}

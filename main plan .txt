@@ -1,0 +1,84 @@
+OBJSIS V.2.
+
+-lokalne na lokalnom serveri 
+-loklna db pre lepsiu stabilitu 
+-login pre kazdeho zamestnaca (roli pre kazdeho napr kuchar casnik manazer...)
+-tech stack html php js css sql 
+
+-NOVE FUNKCIE
+*menu stranka pre zakaznika 
+*dynamicke menu nacitanie menu z db pridavanie zliav atd 
+*admin stranka-uprava menu pridavanie zliav 
+              -uprava rozlozenia restauracie/rozlozenie stolou a cislovanie stolou 
+              -pridavanie a upravovanie zamesnactou (role meno atd..)
+              -pridavanie/odoberanie/upravovanie/tlacanenie zlavovich kuponou
+*zlavove kuponi (budu mat expiration date, na co sa stahuje dane jedlo z menu teda id alebo celi kosik, hodnota napr 10eur alebo 10 percent 
+uprava cez admin panel )
+*stranka na objednanie jeda od stolu zakaznikom 
+*menu sa bude nacitavat z dab abi sa moholo urparovat z admini panelu 
+*moznost docasne vipinat dane jedlo z menu bez nutosti mazania jedla z manu (situace napr doslo jedlo atd)
+*moznost zakaznikom pozerat na stav jedla a odhoadovanie cas pripravi a v akom stave je jeho jedlo 
+*alergeni k jedlam na menu (uprava cez admin panel)
+*backup databazi 
+*viucovaci rezim pre novich pracobvvnikou fake objednavky ...
+*export reporotu a ucteniek do pdf 
+*vitvaranie a tlacenie blockou na danu objednavku 
+*viacjazicna stanke kpre zakaznikou 
+*poznamka k objendavke 
+*pozeranie statistik restauracie v admin paneli 
+*sledovanie smien zamesnancou
+*pin login zamesnanca
+
+
+OBJSIS V.2 – rozdelenie vývoja na fázy
+
+FÁZA 1 – CORE (MVP)
+Cieľ: základný systém objednávok, ktorý reálne funguje v reštaurácii.
+
+- lokálny server
+- lokálna databáza
+- login zamestnancov
+- role používateľov (kuchár, čašník, admin)
+- dynamické menu načítavané z databázy
+- zákaznícka stránka na objednávanie od stola
+- poznámka k objednávke
+- stav objednávky (prijatá, pripravuje sa, hotová)
+
+FÁZA 2 – ADMIN A SPRÁVA SYSTÉMU
+Cieľ: umožniť plnú správu systému bez zásahov do kódu.
+
+- admin stránka
+- úprava menu
+- pridávanie a úprava zliav
+- alergény k jedlám
+- dočasné vypínanie jedál bez mazania z databázy
+- správa zamestnancov (meno, rola, aktivita)
+- PIN login zamestnancov
+
+FÁZA 3 – ORGANIZÁCIA REŠTAURÁCIE
+Cieľ: prehľad nad reštauráciou a personálom.
+
+- rozloženie reštaurácie
+- správa stolov (rozmiestnenie, číslovanie)
+- sledovanie stavu stolov
+- sledovanie smien zamestnancov
+- základné štatistiky reštaurácie
+
+FÁZA 4 – FINANCIE A DOKUMENTY
+Cieľ: riešenie účtov, zliav a výstupov.
+
+- vytváranie blokov k objednávkam
+- tlač blokov
+- export účteniek do PDF
+- export reportov do PDF
+- zľavové kupóny (platnosť, percentá alebo fixná suma, jedlo alebo celý košík)
+
+FÁZA 5 – STABILITA A TRÉNING
+Cieľ: dlhodobá spoľahlivosť systému.
+
+- backup databázy
+- obnova databázy zo zálohy
+- výučbový režim (fake objednávky)
+- viacjazyčná zákaznícka stránka
+
+
