@@ -145,8 +145,10 @@ CREATE TABLE IF NOT EXISTS `coupons` (
 CREATE TABLE IF NOT EXISTS `shifts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `clock_in` datetime NOT NULL,
-  `clock_out` datetime DEFAULT NULL,
+  `start_time` datetime DEFAULT current_timestamp(),
+  `end_time` datetime DEFAULT NULL,
+  `cash_start` decimal(10,2) DEFAULT 0.00,
+  `cash_end` decimal(10,2) DEFAULT 0.00,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `shifts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE

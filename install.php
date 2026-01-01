@@ -483,8 +483,10 @@ $step = $_GET['step'] ?? 1;
                         'shifts' => "CREATE TABLE IF NOT EXISTS shifts (
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             user_id INT NOT NULL,
-                            clock_in DATETIME NOT NULL,
-                            clock_out DATETIME DEFAULT NULL,
+                            start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+                            end_time DATETIME DEFAULT NULL,
+                            cash_start DECIMAL(10, 2) DEFAULT 0.00,
+                            cash_end DECIMAL(10, 2) DEFAULT 0.00,
                             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                         )",
                         'settings' => "CREATE TABLE IF NOT EXISTS settings (
@@ -524,6 +526,32 @@ $step = $_GET['step'] ?? 1;
                         $success_count++;
                     }
 
+                    // --- Schema Synchronization (Robustness Fix) ---
+                    // Ensure the 'shifts' table has the correct columns (converting old schema if needed)
+                    try {
+                        $stmt = $pdo->query("SHOW COLUMNS FROM shifts");
+                        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+                        // Handle rename clock_in -> start_time
+                        if (in_array('clock_in', $columns) && !in_array('start_time', $columns)) {
+                            $pdo->exec("ALTER TABLE shifts CHANGE COLUMN clock_in start_time DATETIME DEFAULT CURRENT_TIMESTAMP");
+                        }
+                        // Handle rename clock_out -> end_time
+                        if (in_array('clock_out', $columns) && !in_array('end_time', $columns)) {
+                            $pdo->exec("ALTER TABLE shifts CHANGE COLUMN clock_out end_time DATETIME DEFAULT NULL");
+                        }
+                        // Ensure cash columns exist
+                        if (!in_array('cash_start', $columns)) {
+                            $pdo->exec("ALTER TABLE shifts ADD COLUMN cash_start DECIMAL(10, 2) DEFAULT 0.00");
+                        }
+                        if (!in_array('cash_end', $columns)) {
+                            $pdo->exec("ALTER TABLE shifts ADD COLUMN cash_end DECIMAL(10, 2) DEFAULT 0.00");
+                        }
+                    } catch (PDOException $e) {
+                        // Table might not exist or other issue, safe to ignore for fresh installs
+                    }
+                    // -----------------------------------------------
+            
                     // Insert admin user
                     require_once 'includes/functions.php';
                     $pin_hash = hashPin($admin_pin);
@@ -602,7 +630,7 @@ $step = $_GET['step'] ?? 1;
 \$username = '{$db_config['db_user']}';
 \$password = '{$db_config['db_pass']}';
 
-define('OBJSIS_VERSION', 'beta 2.0');
+define('OBJSIS_VERSION', '2.2.0');
 
 try {
     \$pdo = new PDO(\"mysql:host=\$host;dbname=\$db_name;charset=utf8mb4\", \$username, \$password);
