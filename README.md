@@ -1,6 +1,6 @@
 # 🍽️ OBJSIS V2 - Restaurant Management System
 
-![Version](https://img.shields.io/badge/version-beta%201.0-orange)
+![Version](https://img.shields.io/badge/version-beta%202.0-orange)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -93,10 +93,17 @@ A comprehensive, modern restaurant management system with order tracking, employ
 - ✅ Order history with filtering
 - ✅ Revenue reports
 
-### Coming Soon (Phase 5)
+### Phase 6 (Complete)
+- ✅ Full Inventory Management
+- ✅ Ingredient & Recipe system
+- ✅ Auto-deduction of stock on orders
+- ✅ Auto-disabling dishes when out of stock
+- ✅ Stock movement history/logging
+
+### Coming Soon (Phase 5 - Delayed)
 - 🔄 Database backup/restore
 - 🔄 Training mode
-- 🔄 Multi-language support
+- 🔄 Multi-language support (Slovak, English)
 
 ---
 
@@ -110,6 +117,7 @@ OBJSIS V2/
 │   ├── tables.php      # Table management
 │   ├── users.php       # Employee management
 │   ├── coupons.php     # Coupon management
+│   ├── inventory.php   # Inventory & Stock management
 │   ├── shifts.php      # Shift history
 │   ├── stats.php       # Statistics
 │   ├── history.php     # Order history
@@ -143,6 +151,11 @@ OBJSIS V2/
 - View orders
 - Take orders
 - Update order status (delivered, paid)
+
+### Inventory Manager
+- Manage ingredient stock
+- Set recipes for menu items
+- View stock movement logs
 
 ---
 
@@ -207,9 +220,10 @@ OBJSIS V2/
 ### For Admins
 1. Manage menu items and prices
 2. Create promotional coupons
-3. View sales statistics
-4. Print receipts and reports
-5. Manage employee accounts
+3. Manage Inventory and Recipes
+4. View sales statistics
+5. Print receipts and reports
+6. Manage employee accounts
 
 ---
 
@@ -276,13 +290,17 @@ For issues or questions:
 
 ## 🗺️ Roadmap
 
-### Phase 5 (Planned)
+### Phase 5 (Future)
 - [ ] Database backup/restore functionality
 - [ ] Training mode for new employees
 - [ ] Multi-language support (Slovak, English, German)
 - [ ] Mobile app for waiters
 - [ ] Kitchen display system
-- [ ] Inventory management
+
+### Phase 6 (Complete)
+- [x] Inventory management
+- [x] Recipe-based stock deduction
+- [x] Sold-out UI refinements (Grayed out cards)
 
 ---
 
