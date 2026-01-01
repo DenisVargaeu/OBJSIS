@@ -1,5 +1,6 @@
 <?php
 // includes/functions.php
+require_once dirname(__DIR__) . '/config/version.php';
 
 session_start();
 

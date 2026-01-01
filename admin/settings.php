@@ -83,6 +83,11 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS Restaurant');
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="updates.php" class="nav-link">
+                            <i class="fas fa-sync"></i> Updates
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="settings.php" class="nav-link active">
                             <i class="fas fa-cog"></i> Settings
                         </a>

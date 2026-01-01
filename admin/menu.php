@@ -58,6 +58,8 @@ foreach ($categories as $cat) {
                             Statistics</a></li>
                     <li class="nav-item"><a href="history.php" class="nav-link"><i class="fas fa-history"></i> History</a>
                     </li>
+                    <li class="nav-item"><a href="updates.php" class="nav-link"><i class="fas fa-sync"></i> Updates</a>
+                    </li>
                     <li class="nav-item"><a href="settings.php" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
                     </li>
                 <?php endif; ?>
@@ -181,9 +183,10 @@ foreach ($categories as $cat) {
         <div class="card" style="width: 500px; max-width: 95%;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 id="recipe-title">Recipe Ingredients</h3>
-                <button class="btn btn-secondary" onclick="closeRecipeModal()" style="padding: 5px 10px;">&times;</button>
+                <button class="btn btn-secondary" onclick="closeRecipeModal()"
+                    style="padding: 5px 10px;">&times;</button>
             </div>
-            
+
             <div id="recipe-list" style="margin-bottom:20px; max-height:300px; overflow-y:auto;">
                 <!-- Ingredients loaded here -->
             </div>
@@ -200,7 +203,8 @@ foreach ($categories as $cat) {
                         <select name="inventory_id" required>
                             <option value="">Select...</option>
                             <?php foreach ($inventory_items as $inv): ?>
-                                    <option value="<?= $inv['id'] ?>"><?= htmlspecialchars($inv['name']) ?> (<?= htmlspecialchars($inv['unit']) ?>)</option>
+                                <option value="<?= $inv['id'] ?>"><?= htmlspecialchars($inv['name']) ?>
+                                    (<?= htmlspecialchars($inv['unit']) ?>)</option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -310,7 +314,7 @@ foreach ($categories as $cat) {
         }
 
         function removeIngredient(id) {
-            if(!confirm('Remove this ingredient?')) return;
+            if (!confirm('Remove this ingredient?')) return;
             const formData = new FormData();
             formData.append('action', 'remove_ingredient');
             formData.append('id', id);

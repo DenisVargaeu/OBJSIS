@@ -58,6 +58,8 @@ $shifts = $stmt->fetchAll();
                             Statistics</a></li>
                     <li class="nav-item"><a href="history.php" class="nav-link"><i class="fas fa-history"></i> History</a>
                     </li>
+                    <li class="nav-item"><a href="updates.php" class="nav-link"><i class="fas fa-sync"></i> Updates</a>
+                    </li>
                     <li class="nav-item"><a href="settings.php" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
                     </li>
                 <?php endif; ?>
