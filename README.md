@@ -1,6 +1,6 @@
 # 🍽️ OBJSIS V2 - Restaurant Management System
 
-![Version](https://img.shields.io/badge/version-beta%202.0-orange)
+![Version](https://img.shields.io/badge/version-2.2.0-orange)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -9,16 +9,16 @@ A comprehensive, modern restaurant management system with order tracking, employ
 
 ## ✨ Features
 
+- 🌓 **V2 Theme Engine** - Premium Dark/Light mode with smooth transitions and dynamic icons
 - 🔐 **Secure PIN-based login** with role management (Admin, Cook, Waiter)
-- 📱 **Customer kiosk** for self-service ordering
+- 📱 **Customer kiosk** for self-service ordering with category-based navigation
 - 🍔 **Dynamic menu management** with categories and availability toggle
-- 📊 **Real-time order tracking** with status updates
+- 📊 **Real-time order tracking** with specialized workspace
 - 🎟️ **Advanced coupon system** with expiration dates and usage limits
+- 📜 **Collapsible Sidebar** - Organized navigation with per-section state persistence
 - 🧾 **Receipt generation** and printing
-- 📈 **Sales statistics** and revenue reports
-- 📜 **Order history** with filtering
-- 🌓 **Dark/Light theme** toggle
-- ⏰ **Shift tracking** for employees
+- 📈 **Sales statistics** and inventory tracking
+- 🔄 **Built-in Updater** - One-click system updates
 
 ---
 
@@ -97,8 +97,14 @@ A comprehensive, modern restaurant management system with order tracking, employ
 - ✅ Full Inventory Management
 - ✅ Ingredient & Recipe system
 - ✅ Auto-deduction of stock on orders
-- ✅ Auto-disabling dishes when out of stock
 - ✅ Stock movement history/logging
+
+### Phase 7 - UI & UX Overhaul (Complete 🚀)
+- ✅ **Dedicated Orders Page** - Specialized high-performance view
+- ✅ **Collapsible Navbar** - Clean workspace with state memory
+- ✅ **V2 Theme System** - Premium light mode & smooth transitions
+- ✅ **Advanced Customization** - Dynamic gradients & image backgrounds
+- ✅ **System Updater** - Robust one-click update engine
 
 ### Coming Soon (Phase 5 - Delayed)
 - 🔄 Database backup/restore
@@ -112,25 +118,19 @@ A comprehensive, modern restaurant management system with order tracking, employ
 ```
 OBJSIS V2/
 ├── admin/              # Admin panel pages
-│   ├── dashboard.php   # Active orders
+│   ├── dashboard.php   # Overview & Real-time stats
+│   ├── orders.php      # Specialized Active Orders view
 │   ├── menu.php        # Menu management
-│   ├── tables.php      # Table management
-│   ├── users.php       # Employee management
-│   ├── coupons.php     # Coupon management
 │   ├── inventory.php   # Inventory & Stock management
-│   ├── shifts.php      # Shift history
-│   ├── stats.php       # Statistics
-│   ├── history.php     # Order history
-│   ├── settings.php    # System settings
-│   └── receipt.php     # Receipt viewer
-├── api/                # Backend API endpoints
-├── assets/             # CSS, JS, images
-├── config/             # Database configuration
-├── includes/           # Helper functions
+│   ├── users.php       # Employee management
+│   ├── updates.php     # Built-in System Updater
+│   ├── settings.php    # System & UI Customization
+│   └── ...             # Coupons, History, Stats
+├── api/                # Backend API & Shift actions
+├── assets/             # CSS (V2), JS (Theme engine), Images
+├── includes/           # Functions & Updater helpers
 ├── sql/                # Database schema
-├── index.php           # Customer kiosk
-├── login.php           # Employee login
-└── install.php         # Database installer
+└── index.php           # Customer kiosk
 ```
 
 ---
