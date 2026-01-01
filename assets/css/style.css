@@ -48,6 +48,7 @@ body.light-mode {
 body.light-mode .sidebar-header {
     background: linear-gradient(to right, #ea580c, #d97706);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -110,6 +111,7 @@ a {
     font-weight: 700;
     background: linear-gradient(to right, var(--primary-color), #fcd34d);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.5px;
 }
@@ -438,4 +440,98 @@ body.light-mode .pin-display {
     background: rgba(255, 255, 255, 0.5);
     border-color: rgba(0, 0, 0, 0.1);
     color: var(--primary-color);
+}
+
+/* --- Responsive Design (Mobile First) --- */
+
+@media (max-width: 992px) {
+    :root {
+        --sidebar-width: 0px;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+        width: 280px;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 1.5rem;
+    }
+
+    /* Mobile Header/Toggle */
+    .mobile-nav-toggle {
+        display: flex;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 101;
+        background: var(--primary-color);
+        color: white;
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .content-header {
+        margin-top: 50px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .orders-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .kiosk-nav {
+        justify-content: flex-start;
+        padding: 10px 20px;
+    }
+
+    .menu-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 15px;
+    }
+
+    .kiosk-hero h1 {
+        font-size: 2rem;
+    }
+
+    /* Modals for Mobile */
+    .modal-content {
+        width: 95% !important;
+        margin: 10px auto !important;
+        padding: 15px !important;
+    }
+}
+
+/* Helper Class for Mobile Toggle */
+.mobile-nav-toggle {
+    display: none;
+}
+
+body.sidebar-open {
+    overflow: hidden;
+}
+
+body.sidebar-open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 99;
 }

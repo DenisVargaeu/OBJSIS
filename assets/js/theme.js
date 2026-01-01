@@ -32,4 +32,31 @@ function toggleTheme() {
 
 // Apply immediately to prevent flash
 applyTheme();
-document.addEventListener('DOMContentLoaded', applyTheme);
+document.addEventListener('DOMContentLoaded', () => {
+    applyTheme();
+
+    // Sidebar Toggle for Mobile
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        const toggle = document.createElement('div');
+        toggle.className = 'mobile-nav-toggle';
+        toggle.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.appendChild(toggle);
+
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+            toggle.innerHTML = sidebar.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+                sidebar.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+                toggle.innerHTML = '<i class="fas fa-bars"></i>';
+            }
+        });
+    }
+});
