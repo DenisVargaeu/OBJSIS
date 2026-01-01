@@ -1,5 +1,5 @@
 <?php
-// admin/dashboard.php
+// admin/orders.php
 require_once '../config/db.php';
 require_once '../includes/functions.php';
 
@@ -8,11 +8,6 @@ requireLogin();
 $user_role = $_SESSION['user_role'];
 $user_name = $_SESSION['user_name'];
 
-// Check for active shift
-$stmt_shift = $pdo->prepare("SELECT * FROM shifts WHERE user_id = ? AND end_time IS NULL ORDER BY start_time DESC LIMIT 1");
-$stmt_shift->execute([$_SESSION['user_id']]);
-$active_shift = $stmt_shift->fetch();
-
 // Handle Status Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     $order_id = $_POST['order_id'];
@@ -20,9 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
     $stmt->execute([$new_status, $order_id]);
 
-    // Phase 3: Update Table Status if Paid or Cancelled
     if ($new_status === 'paid' || $new_status === 'cancelled') {
-        // Get table number from order
         $stmt_get = $pdo->prepare("SELECT table_number FROM orders WHERE id = ?");
         $stmt_get->execute([$order_id]);
         $tbl = $stmt_get->fetch();
@@ -33,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     }
 
     setFlashMessage("Order #$order_id updated to $new_status");
-    redirect('dashboard.php');
+    redirect('orders.php');
 }
 
 // Fetch Active Orders based on Role
@@ -55,11 +48,6 @@ $stmt = $pdo->query("
 ");
 $orders = $stmt->fetchAll();
 
-// Fetch Summary Stats
-$today_revenue = $pdo->query("SELECT SUM(total_price) FROM orders WHERE status = 'paid' AND DATE(created_at) = CURDATE()")->fetchColumn() ?: 0;
-$today_orders = $pdo->query("SELECT COUNT(*) FROM orders WHERE DATE(created_at) = CURDATE()")->fetchColumn() ?: 0;
-$active_count_global = $pdo->query("SELECT COUNT(*) FROM orders WHERE status NOT IN ('paid', 'cancelled')")->fetchColumn() ?: 0;
-
 $page_title = "Active Orders";
 ?>
 <!DOCTYPE html>
@@ -68,7 +56,7 @@ $page_title = "Active Orders";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OBJSIS Dashboard</title>
+    <title>Orders - OBJSIS</title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <?= getCustomStyles() ?>
@@ -78,35 +66,21 @@ $page_title = "Active Orders";
     <div class="app-container">
         <?php include '../includes/sidebar.php'; ?>
 
-        <!-- Main Content -->
         <main class="main-content">
             <header style="background: transparent; border: none; padding: 0 0 2rem 0; margin: 0;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div>
-                        <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 5px;"><?= $page_title ?></h2>
-                        <div style="font-size: 0.9rem; color: var(--text-muted);"><?= date('l, F j, Y') ?></div>
+                        <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 5px;">
+                            <?= $page_title ?>
+                        </h2>
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">
+                            <?= date('l, F j, Y') ?>
+                        </div>
                     </div>
-
-                    <!-- Shift Widget -->
-                    <div class="shift-widget"
-                        style="background: var(--card-bg); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 15px;">
-                        <?php if ($active_shift): ?>
-                            <div style="text-align: right;">
-                                <div style="font-size: 0.8rem; color: var(--success); font-weight: bold;">Clocked In
-                                </div>
-                                <div style="font-size: 0.9rem; font-family: monospace;">Since
-                                    <?= date('H:i', strtotime($active_shift['start_time'])) ?>
-                                </div>
-                            </div>
-                            <button onclick="openClockOutModal()" class="btn"
-                                style="background: var(--danger); font-size: 0.9rem; padding: 8px 15px;">Clock
-                                Out</button>
-                        <?php else: ?>
-                            <div style="font-size: 0.9rem; color: var(--text-muted);">Not working?</div>
-                            <button onclick="openClockInModal()" class="btn"
-                                style="font-size: 0.9rem; padding: 8px 15px;">Clock In</button>
-                        <?php endif; ?>
-                    </div>
+                    <button onclick="location.reload()" class="btn"
+                        style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border-color);">
+                        <i class="fas fa-sync"></i> Refresh
+                    </button>
                 </div>
             </header>
 
@@ -115,51 +89,6 @@ $page_title = "Active Orders";
                     <?= $msg['message'] ?>
                 </div>
             <?php endif; ?>
-
-            <!-- Stats Overview -->
-            <div class="stats-grid"
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 2rem;">
-                <div class="stat-card"
-                    style="background: var(--card-bg-glass); border-radius: var(--border-radius); padding: 20px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 20px; backdrop-filter: blur(10px);">
-                    <div
-                        style="width: 50px; height: 50px; background: rgba(249, 115, 22, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary-color);">
-                        <i class="fas fa-euro-sign" style="font-size: 1.5rem;"></i>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Today's Revenue
-                        </div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">
-                            <?= number_format($today_revenue, 2) ?> €</div>
-                    </div>
-                </div>
-
-                <div class="stat-card"
-                    style="background: var(--card-bg-glass); border-radius: var(--border-radius); padding: 20px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 20px; backdrop-filter: blur(10px);">
-                    <div
-                        style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
-                        <i class="fas fa-shopping-cart" style="font-size: 1.5rem;"></i>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Today's Orders
-                        </div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);"><?= $today_orders ?>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stat-card"
-                    style="background: var(--card-bg-glass); border-radius: var(--border-radius); padding: 20px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 20px; backdrop-filter: blur(10px);">
-                    <div
-                        style="width: 50px; height: 50px; background: rgba(34, 197, 94, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--success);">
-                        <i class="fas fa-clock" style="font-size: 1.5rem;"></i>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">Active Orders</div>
-                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main);">
-                            <?= $active_count_global ?></div>
-                    </div>
-                </div>
-            </div>
 
             <?php if (empty($orders)): ?>
                 <div
@@ -195,18 +124,24 @@ $page_title = "Active Orders";
                                 <div>
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0;">
-                                            Table <?= $order['table_number'] ?></h3>
+                                            Table
+                                            <?= $order['table_number'] ?>
+                                        </h3>
                                         <span
-                                            style="font-size: 0.75rem; background: var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">#<?= $order['id'] ?></span>
+                                            style="font-size: 0.75rem; background: var(--border-color); padding: 2px 8px; border-radius: 4px; color: var(--text-muted);">#
+                                            <?= $order['id'] ?>
+                                        </span>
                                     </div>
                                     <div
                                         style="font-size: 0.8rem; color: var(--primary-color); margin-top: 4px; font-weight: 600;">
-                                        <i class="fas fa-clock"></i> <?= date('H:i', strtotime($order['created_at'])) ?>
+                                        <i class="fas fa-clock"></i>
+                                        <?= date('H:i', strtotime($order['created_at'])) ?>
                                     </div>
                                 </div>
                                 <div class="status-badge"
                                     style="padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
-                                    <i class="fas <?= $status_icon ?>"></i> <?= $status_class ?>
+                                    <i class="fas <?= $status_icon ?>"></i>
+                                    <?= $status_class ?>
                                 </div>
                             </div>
 
@@ -223,9 +158,11 @@ $page_title = "Active Orders";
                                             ?>
                                             <li
                                                 style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem;">
-                                                <span style="color: var(--text-main);"><strong
-                                                        style="color: var(--primary-color);"><?= $qty ?></strong>
-                                                    <?= htmlspecialchars($name) ?></span>
+                                                <span style="color: var(--text-main);"><strong style="color: var(--primary-color);">
+                                                        <?= $qty ?>
+                                                    </strong>
+                                                    <?= htmlspecialchars($name) ?>
+                                                </span>
                                             </li>
                                         <?php endforeach; ?>
                                     </ul>
@@ -237,9 +174,9 @@ $page_title = "Active Orders";
                                 <div
                                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                                     <span style="color: var(--text-muted); font-size: 0.9rem;">Order Total</span>
-                                    <span
-                                        style="font-size: 1.4rem; font-weight: 800; color: var(--text-main);"><?= number_format($order['total_price'], 2) ?>
-                                        €</span>
+                                    <span style="font-size: 1.4rem; font-weight: 800; color: var(--text-main);">
+                                        <?= number_format($order['total_price'], 2) ?> €
+                                    </span>
                                 </div>
 
                                 <form method="POST">
@@ -283,8 +220,9 @@ $page_title = "Active Orders";
                                         <input type="hidden" name="status" value="<?= $next_status ?>">
                                         <div style="display:flex; gap:10px;">
                                             <button type="submit" class="btn"
-                                                style="background-color: <?= $btn_color ?>; flex: 1; justify-content: center; padding: 14px; font-size: 1rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-                                                <i class="fas <?= $btn_icon ?>" style="margin-right: 10px;"></i> <?= $btn_label ?>
+                                                style="background-color: <?= $btn_color ?>; flex: 1; justify-content: center; padding: 14px; font-size: 1rem; border-radius: 12px;">
+                                                <i class="fas <?= $btn_icon ?>" style="margin-right: 10px;"></i>
+                                                <?= $btn_label ?>
                                             </button>
                                             <a href="receipt.php?order_id=<?= $order['id'] ?>" target="_blank" class="btn"
                                                 style="padding:14px; background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border-color); width: 54px; justify-content: center; border-radius: 12px;">
@@ -305,71 +243,6 @@ $page_title = "Active Orders";
             <?php endif; ?>
         </main>
     </div>
-    <!-- Clock In Modal -->
-    <div id="clock-in-modal"
-        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
-        <div class="card" style="width: 350px;">
-            <h3>Start Shift</h3>
-            <p style="color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">Ready to start working?</p>
-            <form onsubmit="event.preventDefault(); submitClockIn(this);">
-                <div style="display:flex; gap:10px;">
-                    <button type="button" class="btn btn-secondary"
-                        onclick="document.getElementById('clock-in-modal').style.display='none'">Cancel</button>
-                    <button type="submit" class="btn">Start Shift</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Clock Out Modal -->
-    <div id="clock-out-modal"
-        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
-        <div class="card" style="width: 350px;">
-            <h3>End Shift</h3>
-            <p style="color:var(--text-muted); margin-bottom:15px; font-size:0.9rem;">Confirm to end your shift.</p>
-            <form onsubmit="event.preventDefault(); submitClockOut(this);">
-                <div style="display:flex; gap:10px;">
-                    <button type="button" class="btn btn-secondary"
-                        onclick="document.getElementById('clock-out-modal').style.display='none'">Cancel</button>
-                    <button type="submit" class="btn" style="background:var(--danger)">End Shift</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        function openClockInModal() {
-            document.getElementById('clock-in-modal').style.display = 'flex';
-        }
-
-        function openClockOutModal() {
-            document.getElementById('clock-out-modal').style.display = 'flex';
-        }
-
-        function submitClockIn(form) {
-            const formData = new FormData(form);
-            formData.append('action', 'clock_in');
-
-            fetch('../api/shift_actions.php', { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.success) location.reload();
-                    else alert(res.message);
-                });
-        }
-
-        function submitClockOut(form) {
-            const formData = new FormData(form);
-            formData.append('action', 'clock_out');
-
-            fetch('../api/shift_actions.php', { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(res => {
-                    if (res.success) location.reload();
-                    else alert(res.message);
-                });
-        }
-    </script>
 </body>
 
 </html>

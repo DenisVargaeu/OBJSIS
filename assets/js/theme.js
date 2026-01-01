@@ -1,8 +1,19 @@
 // assets/js/theme.js
 
+function updateThemeIcons() {
+    const isLight = document.body.classList.contains('light-mode');
+    const icons = document.querySelectorAll('.theme-toggle-icon');
+    icons.forEach(icon => {
+        if (isLight) {
+            icon.classList.replace('fa-moon', 'fa-sun');
+        } else {
+            icon.classList.replace('fa-sun', 'fa-moon');
+        }
+    });
+}
+
 function applyTheme() {
     const hour = new Date().getHours();
-    // Day time: 7 AM to 7 PM (19:00)
     const isDay = hour >= 7 && hour < 19;
     const pref = localStorage.getItem('theme_pref');
 
@@ -11,13 +22,13 @@ function applyTheme() {
     } else if (pref === 'dark') {
         document.body.classList.remove('light-mode');
     } else {
-        // Auto based on time
         if (isDay) {
             document.body.classList.add('light-mode');
         } else {
             document.body.classList.remove('light-mode');
         }
     }
+    updateThemeIcons();
 }
 
 function toggleTheme() {
@@ -28,35 +39,9 @@ function toggleTheme() {
         document.body.classList.add('light-mode');
         localStorage.setItem('theme_pref', 'light');
     }
+    updateThemeIcons();
 }
 
 // Apply immediately to prevent flash
 applyTheme();
-document.addEventListener('DOMContentLoaded', () => {
-    applyTheme();
-
-    // Sidebar Toggle for Mobile
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar) {
-        const toggle = document.createElement('div');
-        toggle.className = 'mobile-nav-toggle';
-        toggle.innerHTML = '<i class="fas fa-bars"></i>';
-        document.body.appendChild(toggle);
-
-        toggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            sidebar.classList.toggle('active');
-            document.body.classList.toggle('sidebar-open');
-            toggle.innerHTML = sidebar.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-        });
-
-        // Close sidebar when clicking outside
-        document.addEventListener('click', (e) => {
-            if (sidebar.classList.contains('active') && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                sidebar.classList.remove('active');
-                document.body.classList.remove('sidebar-open');
-                toggle.innerHTML = '<i class="fas fa-bars"></i>';
-            }
-        });
-    }
-});
+document.addEventListener('DOMContentLoaded', applyTheme);

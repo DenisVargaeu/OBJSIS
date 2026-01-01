@@ -56,8 +56,8 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
     <title>Login - <?= htmlspecialchars($restaurant_name) ?></title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
+    <?= getCustomStyles() ?>
+    <script src="assets/js/theme.js"></script>
 </head>
 
 <body>

@@ -123,23 +123,56 @@ class OBJSIS_Updater
         $zip = new ZipArchive;
         if ($zip->open($zipPath) === TRUE) {
             $root = dirname(__DIR__);
+            $prefix = '';
+
+            // 1. Identify common prefix (GitHub often wraps everything in a folder)
+            if ($zip->numFiles > 0) {
+                $firstFile = $zip->getNameIndex(0);
+                $parts = explode('/', $firstFile);
+                if (count($parts) > 1 && $zip->locateName($parts[0] . '/') !== false) {
+                    $prefix = $parts[0] . '/';
+                }
+            }
 
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 $filename = $zip->getNameIndex($i);
 
-                // Skip sensitive/user directories
-                if (strpos($filename, 'config/db.php') !== false)
-                    continue;
-                if (strpos($filename, 'uploads/') === 0)
-                    continue;
-                if (strpos($filename, 'logs/') === 0)
-                    continue;
-                if (strpos($filename, '.vscode/') === 0)
-                    continue;
-                if ($filename === '.gitignore')
+                // Strip prefix if exists
+                $targetFile = $filename;
+                if ($prefix !== '' && strpos($filename, $prefix) === 0) {
+                    $targetFile = substr($filename, strlen($prefix));
+                }
+
+                if (empty($targetFile))
                     continue;
 
-                $zip->extractTo($root, $filename);
+                // Skip sensitive/user directories
+                if (strpos($targetFile, 'config/db.php') !== false)
+                    continue;
+                if (strpos($targetFile, 'uploads/') === 0)
+                    continue;
+                if (strpos($targetFile, 'logs/') === 0)
+                    continue;
+                if (strpos($targetFile, '.vscode/') === 0)
+                    continue;
+                if ($targetFile === '.gitignore' || $targetFile === '.git/')
+                    continue;
+
+                // Ensure parent directory exists for the target file
+                $fullPath = $root . '/' . $targetFile;
+                $dir = dirname($fullPath);
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0755, true);
+                }
+
+                // If it's a directory entry in zip, don't try to "extract" as file
+                if (substr($filename, -1) === '/') {
+                    if (!is_dir($fullPath))
+                        mkdir($fullPath, 0755, true);
+                    continue;
+                }
+
+                file_put_contents($fullPath, $zip->getFromName($filename));
             }
             $zip->close();
         } else {
@@ -149,19 +182,49 @@ class OBJSIS_Updater
 
     private function backupDatabase()
     {
-        // Simple DB Backup logic - requires 'mysqldump' available in path
-        // For a more portable PHP solution, we could use PDO to dump tables
         $backupFile = $this->backupDir . '/db_backup_' . date('Y-m-d_H-i-s') . '.sql';
 
-        // This is a placeholder for a more robust backup logic
-        // For now, we'll implement a simple one if possible or skip if not supported
+        try {
+            $handle = fopen($backupFile, 'w');
+            $tables = [];
+            $result = $this->pdo->query("SHOW TABLES");
+            while ($row = $result->fetch(PDO::FETCH_NUM)) {
+                $tables[] = $row[0];
+            }
+
+            foreach ($tables as $table) {
+                // Get Create Table status
+                $res = $this->pdo->query("SHOW CREATE TABLE `$table`")->fetch(PDO::FETCH_ASSOC);
+                fwrite($handle, "\n\n" . $res['Create Table'] . ";\n\n");
+
+                // Get Data
+                $result = $this->pdo->query("SELECT * FROM `$table` ");
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $keys = array_keys($row);
+                    $values = array_values($row);
+                    $values = array_map(function ($v) {
+                        return $this->pdo->quote($v);
+                    }, $values);
+                    fwrite($handle, "INSERT INTO `$table` (`" . implode("`, `", $keys) . "`) VALUES (" . implode(", ", $values) . ");\n");
+                }
+            }
+            fclose($handle);
+        } catch (Exception $e) {
+            // Silently fail backup if it's not critical
+        }
     }
 
     private function runSqlFile($path)
     {
         $sql = file_get_contents($path);
         if ($sql) {
-            $this->pdo->exec($sql);
+            $queries = explode(";", $sql);
+            foreach ($queries as $query) {
+                $query = trim($query);
+                if (!empty($query)) {
+                    $this->pdo->exec($query);
+                }
+            }
         }
     }
 

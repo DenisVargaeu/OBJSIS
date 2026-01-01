@@ -23,60 +23,12 @@ $coupons = $stmt->fetchAll();
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/page_coupons.css"> <!-- Specific CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <?= getCustomStyles() ?>
 </head>
 
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <?= htmlspecialchars(getSetting('restaurant_name')) ?>
-                <div style="font-size: 0.8rem; opacity: 0.5; font-weight: normal; margin-top: 5px;">
-                    <?= OBJSIS_VERSION ?>
-                </div>
-            </div>
-            <ul class="nav-links">
-                <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="fas fa-th-large"></i> Active
-                        Orders</a></li>
-                <li class="nav-item"><a href="menu.php" class="nav-link"><i class="fas fa-utensils"></i> Menu Items</a>
-                </li>
-                <li class="nav-item"><a href="tables.php" class="nav-link"><i class="fas fa-chair"></i> Tables</a></li>
-                <li class="nav-item"><a href="shifts.php" class="nav-link"><i class="fas fa-clock"></i> Shifts</a></li>
-                <li class="nav-item"><a href="coupons.php" class="nav-link active"><i class="fas fa-ticket-alt"></i>
-                        Coupons</a></li>
-                <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                    <li class="nav-item"><a href="users.php" class="nav-link"><i class="fas fa-users"></i> Employees</a>
-                    </li>
-                    <li class="nav-item"><a href="stats.php" class="nav-link"><i class="fas fa-chart-line"></i>
-                            Statistics</a></li>
-                    <li class="nav-item"><a href="history.php" class="nav-link"><i class="fas fa-history"></i> History</a>
-                    </li>
-                    <li class="nav-item"><a href="updates.php" class="nav-link"><i class="fas fa-sync"></i> Updates</a>
-                    </li>
-                    <li class="nav-item"><a href="settings.php" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
-                    </li>
-                <?php endif; ?>
-            </ul>
-            <div class="user-profile">
-                <div style="font-weight: 600; color: var(--text-main); margin-bottom: 4px;">
-                    <?= htmlspecialchars($_SESSION['user_name']) ?>
-                </div>
-                <div
-                    style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px;">
-                    <?= htmlspecialchars($_SESSION['user_role']) ?>
-                </div>
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <a href="../logout.php" style="color: var(--primary-color); font-size: 0.9rem; font-weight: 500;">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </a>
-                    <button onclick="toggleTheme()"
-                        style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.1rem;">
-                        <i class="fas fa-adjust"></i>
-                    </button>
-                </div>
-            </div>
-            <script src="../assets/js/theme.js"></script>
-        </aside>
+        <?php include '../includes/sidebar.php'; ?>
 
         <main class="main-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">

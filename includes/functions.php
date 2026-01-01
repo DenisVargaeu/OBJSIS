@@ -137,4 +137,68 @@ function deductStockForOrder($pdo, $order_id)
     // After all deductions, update availability
     updateMenuAvailability($pdo);
 }
+
+/**
+ * Get Dynamic Custom Styles
+ */
+function getCustomStyles()
+{
+    $primary = getSetting('primary_color', '#f97316');
+    $primary_hover = getSetting('primary_hover', '#ea580c');
+
+    // Kiosk Background
+    $bg_type_kiosk = getSetting('bg_type_kiosk', 'image');
+    $bg_image_kiosk = getSetting('bg_image_kiosk', 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+    $bg_color_kiosk = getSetting('bg_color_kiosk', '#0f172a');
+
+    // Login Background
+    $bg_type_login = getSetting('bg_type_login', 'gradient');
+    $bg_image_login = getSetting('bg_image_login', '');
+    $bg_color_login = getSetting('bg_color_login', '#0f172a');
+
+    $styles = "
+    <style>
+        :root {
+            --primary-color: $primary !important;
+            --primary-hover: $primary_hover !important;
+        }
+    ";
+
+    // Kiosk Hero Styling
+    if ($bg_type_kiosk === 'color') {
+        $styles .= "
+        .kiosk-hero {
+            background: $bg_color_kiosk !important;
+        }
+        ";
+    } else {
+        $styles .= "
+        .kiosk-hero {
+            background: linear-gradient(rgba(15, 23, 42, 0.7), var(--bg-color)), url('$bg_image_kiosk') !important;
+            background-size: cover !important;
+            background-position: center !important;
+        }
+        ";
+    }
+
+    // Login Wrapper Styling
+    if ($bg_type_login === 'color') {
+        $styles .= "
+        .login-wrapper {
+            background: $bg_color_login !important;
+        }
+        ";
+    } elseif ($bg_type_login === 'image' && !empty($bg_image_login)) {
+        $styles .= "
+        .login-wrapper {
+            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('$bg_image_login') !important;
+            background-size: cover !important;
+            background-position: center !important;
+        }
+        ";
+    }
+
+    $styles .= "</style>";
+    return $styles;
+}
 ?>

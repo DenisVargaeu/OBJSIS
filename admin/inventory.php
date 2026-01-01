@@ -72,6 +72,7 @@ $page_title = "Inventory Management";
     </title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <?= getCustomStyles() ?>
     <style>
         .inventory-grid {
             display: grid;
@@ -148,37 +149,7 @@ $page_title = "Inventory Management";
 
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <?= htmlspecialchars(getSetting('restaurant_name')) ?>
-                <div style="font-size: 0.8rem; opacity: 0.5; font-weight: normal; margin-top: 5px;">
-                    <?= OBJSIS_VERSION ?>
-                </div>
-            </div>
-            <ul class="nav-links">
-                <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
-                </li>
-                <li class="nav-item"><a href="menu.php" class="nav-link"><i class="fas fa-utensils"></i> Menu</a></li>
-                <li class="nav-item"><a href="inventory.php" class="nav-link active"><i class="fas fa-boxes"></i>
-                        Inventory</a></li>
-                <li class="nav-item"><a href="tables.php" class="nav-link"><i class="fas fa-chair"></i> Tables</a></li>
-                <li class="nav-item"><a href="coupons.php" class="nav-link"><i class="fas fa-ticket-alt"></i>
-                        Coupons</a></li>
-                <li class="nav-item"><a href="shifts.php" class="nav-link"><i class="fas fa-clock"></i> Shifts</a></li>
-                <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                    <li class="nav-item"><a href="users.php" class="nav-link"><i class="fas fa-users"></i> Employees</a>
-                    </li>
-                    <li class="nav-item"><a href="stats.php" class="nav-link"><i class="fas fa-chart-line"></i>
-                            Statistics</a></li>
-                    <li class="nav-item"><a href="history.php" class="nav-link"><i class="fas fa-history"></i> History</a>
-                    </li>
-                    <li class="nav-item"><a href="settings.php" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
-                    </li>
-                <?php endif; ?>
-            </ul>
-            <!-- User profile omitted for brevity, same as other pages -->
-        </aside>
+        <?php include '../includes/sidebar.php'; ?>
 
         <main class="main-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">

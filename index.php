@@ -76,6 +76,7 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
     <title><?= htmlspecialchars(getSetting('restaurant_name', 'OBJSIS')) ?> Menu</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/kiosk_improvements.css">
+    <script src="assets/js/theme.js"></script>
     <style>
         .tables-grid-customer {
             display: grid;
@@ -134,6 +135,7 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
         }
     </style>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <?= getCustomStyles() ?>
 </head>
 
 <body>

@@ -21,43 +21,12 @@ $page_title = "System Updates";
     </title>
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <?= getCustomStyles() ?>
 </head>
 
 <body class="admin-page">
-    <div class="admin-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fas fa-utensils"></i>
-                    <span>OBJSIS <span>V2</span></span>
-                </div>
-            </div>
-            <ul class="nav-links">
-                <li class="nav-item"><a href="dashboard.php" class="nav-link"><i class="fas fa-th-large"></i> Active
-                        Orders</a></li>
-                <li class="nav-item"><a href="menu.php" class="nav-link"><i class="fas fa-utensils"></i> Menu Items</a>
-                </li>
-                <li class="nav-item"><a href="inventory.php" class="nav-link"><i class="fas fa-boxes"></i> Inventory</a>
-                </li>
-                <li class="nav-item"><a href="tables.php" class="nav-link"><i class="fas fa-chair"></i> Tables</a></li>
-                <li class="nav-item"><a href="shifts.php" class="nav-link"><i class="fas fa-clock"></i> Shifts</a></li>
-                <li class="nav-item"><a href="coupons.php" class="nav-link"><i class="fas fa-ticket-alt"></i>
-                        Coupons</a></li>
-                <?php if ($_SESSION['user_role'] === 'admin'): ?>
-                    <li class="nav-item"><a href="users.php" class="nav-link"><i class="fas fa-users"></i> Employees</a>
-                    </li>
-                    <li class="nav-item"><a href="stats.php" class="nav-link"><i class="fas fa-chart-line"></i>
-                            Statistics</a></li>
-                    <li class="nav-item"><a href="history.php" class="nav-link"><i class="fas fa-history"></i> History</a>
-                    </li>
-                    <li class="nav-item"><a href="updates.php" class="nav-link active"><i class="fas fa-sync"></i>
-                            Updates</a></li>
-                    <li class="nav-item"><a href="settings.php" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
-                    </li>
-                <?php endif; ?>
-            </ul>
-        </aside>
+    <div class="app-container"> <!-- Changed from admin-container for consistency -->
+        <?php include '../includes/sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="main-content">

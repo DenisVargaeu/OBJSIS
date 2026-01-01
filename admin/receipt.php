@@ -100,6 +100,7 @@ $restaurant_name = getSetting('restaurant_name', 'My Restaurant');
             }
         }
     </style>
+    <?= getCustomStyles() ?>
 </head>
 
 <body>
