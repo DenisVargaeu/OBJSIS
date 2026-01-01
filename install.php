@@ -420,12 +420,12 @@ $step = $_GET['step'] ?? 1;
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             name VARCHAR(50) NOT NULL,
                             pin_hash VARCHAR(255) NOT NULL,
-                            role ENUM('admin', 'cook', 'waiter') NOT NULL,
+                            role ENUM('admin', 'cook', 'waiter', 'inventory') NOT NULL,
                             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                         )",
                         'categories' => "CREATE TABLE IF NOT EXISTS categories (
                             id INT AUTO_INCREMENT PRIMARY KEY,
-                            name VARCHAR(50) NOT NULL,
+                            name VARCHAR(100) NOT NULL,
                             sort_order INT DEFAULT 0
                         )",
                         'menu_items' => "CREATE TABLE IF NOT EXISTS menu_items (
@@ -491,6 +491,31 @@ $step = $_GET['step'] ?? 1;
                             setting_key VARCHAR(50) PRIMARY KEY,
                             setting_value TEXT,
                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                        )",
+                        'inventory' => "CREATE TABLE IF NOT EXISTS inventory (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            name VARCHAR(100) NOT NULL,
+                            current_quantity DECIMAL(10,2) DEFAULT 0.00,
+                            unit VARCHAR(20) DEFAULT 'pcs',
+                            critical_threshold DECIMAL(10,2) DEFAULT 0.00,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        )",
+                        'menu_item_ingredients' => "CREATE TABLE IF NOT EXISTS menu_item_ingredients (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            menu_item_id INT NOT NULL,
+                            inventory_id INT NOT NULL,
+                            quantity_required DECIMAL(10,2) NOT NULL,
+                            FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE,
+                            FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
+                        )",
+                        'inventory_logs' => "CREATE TABLE IF NOT EXISTS inventory_logs (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            inventory_id INT NOT NULL,
+                            user_id INT,
+                            change_type ENUM('purchase', 'sale', 'waste', 'correction') NOT NULL,
+                            quantity_change DECIMAL(10,2) NOT NULL,
+                            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
                         )"
                     ];
 
@@ -577,7 +602,7 @@ $step = $_GET['step'] ?? 1;
 \$username = '{$db_config['db_user']}';
 \$password = '{$db_config['db_pass']}';
 
-define('OBJSIS_VERSION', 'beta 1.0');
+define('OBJSIS_VERSION', 'beta 2.0');
 
 try {
     \$pdo = new PDO(\"mysql:host=\$host;dbname=\$db_name;charset=utf8mb4\", \$username, \$password);
