@@ -34,6 +34,8 @@ $tables = $stmt->fetchAll();
                         Orders</a></li>
                 <li class="nav-item"><a href="menu.php" class="nav-link"><i class="fas fa-utensils"></i> Menu Items</a>
                 </li>
+                <li class="nav-item"><a href="inventory.php" class="nav-link"><i class="fas fa-boxes"></i> Inventory</a>
+                </li>
                 <li class="nav-item"><a href="tables.php" class="nav-link active"><i class="fas fa-chair"></i>
                         Tables</a></li>
                 <li class="nav-item"><a href="shifts.php" class="nav-link"><i class="fas fa-clock"></i> Shifts</a></li>

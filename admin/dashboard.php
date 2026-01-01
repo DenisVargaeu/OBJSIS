@@ -75,7 +75,8 @@ $page_title = "Active Orders";
             <div class="sidebar-header">
                 <?= htmlspecialchars(getSetting('restaurant_name')) ?>
                 <div style="font-size: 0.8rem; opacity: 0.5; font-weight: normal; margin-top: 5px;">
-                    <?= OBJSIS_VERSION ?></div>
+                    <?= OBJSIS_VERSION ?>
+                </div>
             </div>
 
             <ul class="nav-links">
@@ -87,6 +88,11 @@ $page_title = "Active Orders";
                 <li class="nav-item">
                     <a href="menu.php" class="nav-link">
                         <i class="fas fa-utensils"></i> Menu
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="inventory.php" class="nav-link">
+                        <i class="fas fa-boxes"></i> Inventory
                     </a>
                 </li>
                 <li class="nav-item">

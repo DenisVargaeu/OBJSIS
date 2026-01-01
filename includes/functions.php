@@ -72,4 +72,68 @@ function getSetting($key, $default = '')
         return $default;
     }
 }
+/**
+ * Update Menu Availability based on Stock
+ */
+function updateMenuAvailability($pdo)
+{
+    // Fetch all menu items that have ingredients defined
+    $stmt = $pdo->query("SELECT DISTINCT menu_item_id FROM menu_item_ingredients");
+    $item_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    foreach ($item_ids as $item_id) {
+        $stmt = $pdo->prepare("
+            SELECT r.quantity_required, i.current_quantity 
+            FROM menu_item_ingredients r
+            JOIN inventory i ON r.inventory_id = i.id
+            WHERE r.menu_item_id = ?
+        ");
+        $stmt->execute([$item_id]);
+        $ingredients = $stmt->fetchAll();
+
+        $can_make = true;
+        foreach ($ingredients as $ing) {
+            if ($ing['current_quantity'] < $ing['quantity_required']) {
+                $can_make = false;
+                break;
+            }
+        }
+
+        $stmt_update = $pdo->prepare("UPDATE menu_items SET is_available = ? WHERE id = ?");
+        $stmt_update->execute([$can_make ? 1 : 0, $item_id]);
+    }
+}
+
+/**
+ * Deduct Stock for a given Order
+ */
+function deductStockForOrder($pdo, $order_id)
+{
+    // Fetch all items in the order
+    $stmt = $pdo->prepare("SELECT menu_item_id, quantity FROM order_items WHERE order_id = ?");
+    $stmt->execute([$order_id]);
+    $items = $stmt->fetchAll();
+
+    foreach ($items as $item) {
+        // Find ingredients for this menu item
+        $stmt_ing = $pdo->prepare("SELECT inventory_id, quantity_required FROM menu_item_ingredients WHERE menu_item_id = ?");
+        $stmt_ing->execute([$item['menu_item_id']]);
+        $ingredients = $stmt_ing->fetchAll();
+
+        foreach ($ingredients as $ing) {
+            $total_deduction = $ing['quantity_required'] * $item['quantity'];
+
+            // Deduct from inventory
+            $stmt_deduct = $pdo->prepare("UPDATE inventory SET current_quantity = current_quantity - ? WHERE id = ?");
+            $stmt_deduct->execute([$total_deduction, $ing['inventory_id']]);
+
+            // Log the sale
+            $stmt_log = $pdo->prepare("INSERT INTO inventory_logs (inventory_id, change_type, quantity_change) VALUES (?, 'sale', ?)");
+            $stmt_log->execute([$ing['inventory_id'], -$total_deduction]);
+        }
+    }
+
+    // After all deductions, update availability
+    updateMenuAvailability($pdo);
+}
 ?>

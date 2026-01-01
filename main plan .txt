@@ -82,3 +82,17 @@ Cieľ: dlhodobá spoľahlivosť systému.
 - viacjazyčná zákaznícka stránka
 
 
+FÁZA 6 – SKLAD A ZÁSOBY (INVENTORY SYSTEM)
+Cieľ: automatická kontrola surovín, prevencia chýb a nulových stavov.
+
+-správa skladu a zásob surovín
+-nová rola skladník / inventory manager
+-každé jedlo má definované suroviny a potrebné množstvá
+-evidencia aktuálneho množstva surovín v sklade
+-minimálne množstvo surovín (kritická hranica)
+-automatické upozornenie zodpovednej osoby pri nedostatku
+-automatické vypnutie jedál, ktoré sa nedajú pripraviť kvôli chýbajúcim surovinám
+-automatické znovu-zapnutie jedál po naskladnení
+-logovanie pohybov skladu (objednávky, dodávky, korekcie)
+-prehľad kritických surovín v admin/sklad paneli
+-možnosť manuálnej inventúry

@@ -44,7 +44,7 @@ try {
 
     $menu = [];
     foreach ($categories as $cat) {
-        $stmt = $pdo->prepare("SELECT * FROM menu_items WHERE category_id = ? AND is_available = 1");
+        $stmt = $pdo->prepare("SELECT * FROM menu_items WHERE category_id = ?");
         $stmt->execute([$cat['id']]);
         $items = $stmt->fetchAll();
         if (!empty($items)) {
@@ -226,7 +226,13 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
 
                             <div class="menu-grid">
                                 <?php foreach ($menu[$category['name']] as $item): ?>
-                                    <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+                                    <div class="card item-card <?= !$item['is_available'] ? 'sold-out' : '' ?>"
+                                        style="padding: 0; overflow: hidden; display: flex; flex-direction: column; position: relative;">
+
+                                        <?php if (!$item['is_available']): ?>
+                                            <div class="sold-out-badge">SOLD OUT</div>
+                                        <?php endif; ?>
+
                                         <div style="height: 200px; background-color: #333; position: relative;">
                                             <?php if ($item['image_url']): ?>
                                                 <img src="<?= htmlspecialchars($item['image_url']) ?>"
@@ -248,10 +254,17 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                                             <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; flex: 1;">
                                                 <?= htmlspecialchars($item['description']) ?>
                                             </p>
-                                            <button class="btn" style="width: 100%;"
-                                                onclick="addToCart(<?= $item['id'] ?>, '<?= addslashes($item['name']) ?>', <?= $item['price'] ?>)">
-                                                Add <i class="fas fa-plus" style="margin-left: 8px;"></i>
-                                            </button>
+
+                                            <?php if ($item['is_available']): ?>
+                                                <button class="btn" style="width: 100%;"
+                                                    onclick="addToCart(<?= $item['id'] ?>, '<?= addslashes($item['name']) ?>', <?= $item['price'] ?>)">
+                                                    Add <i class="fas fa-plus" style="margin-left: 8px;"></i>
+                                                </button>
+                                            <?php else: ?>
+                                                <button class="btn" style="width: 100%; background: #444; cursor: not-allowed;" disabled>
+                                                    Out of Stock <i class="fas fa-times" style="margin-left: 8px;"></i>
+                                                </button>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>

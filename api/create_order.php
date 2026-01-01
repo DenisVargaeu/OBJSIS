@@ -72,6 +72,10 @@ try {
         $stmt_coupon->execute([$coupon_code]);
     }
 
+    // Phase 6: Deduct Stock
+    require_once '../includes/functions.php';
+    deductStockForOrder($pdo, $order_id);
+
     $pdo->commit();
     echo json_encode(['success' => true, 'order_id' => $order_id]);
 
