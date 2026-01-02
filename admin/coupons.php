@@ -81,6 +81,10 @@ $coupons = $stmt->fetchAll();
                         $status_class = ($is_expired || $is_maxed || !$coupon['is_active']) ? 'coupon-inactive' : 'coupon-active';
                         ?>
                         <div class="coupon-ticket" style="position:relative;">
+                            <button class="print-coupon-btn"
+                                onclick="openPrintModal(<?= $coupon['id'] ?>, '<?= addslashes($coupon['code']) ?>', '<?= $coupon['value'] ?>', '<?= $coupon['type'] ?>', '<?= $coupon['expiration_date'] ?>')">
+                                <i class="fas fa-print"></i>
+                            </button>
                             <button class="delete-coupon-btn" onclick="deleteCoupon(<?= $coupon['id'] ?>)"><i
                                     class="fas fa-trash"></i></button>
                             <div class="coupon-code">
@@ -124,6 +128,60 @@ $coupons = $stmt->fetchAll();
         </main>
     </div>
 
+    <!-- Print Style Selection Modal -->
+    <div id="print-modal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+        <div class="card" style="width: 500px; max-width: 90%;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h3 style="margin:0;">Select Coupon Style</h3>
+                <button type="button" class="btn btn-secondary" style="padding: 5px 10px;"
+                    onclick="document.getElementById('print-modal').style.display='none'">&times;</button>
+            </div>
+
+            <p style="color:var(--text-muted); font-size:0.9rem;">Choose a visual style for coupon: <strong
+                    id="modal-coupon-code" style="color:var(--primary-color);"></strong></p>
+
+            <div class="preview-container">
+                <div id="coupon-preview" class="preview-scale">
+                    <!-- Preview content injected here -->
+                </div>
+            </div>
+
+            <input type="hidden" id="print-coupon-id">
+
+            <div class="style-options">
+                <div class="style-option selected" onclick="selectStyle(this, 'standard')">
+                    <i class="fas fa-certificate"></i>
+                    <strong>Standard</strong>
+                    <div style="font-size:0.7rem; opacity:0.6; margin-top:5px;">Dashed border, brand colors</div>
+                </div>
+                <div class="style-option" onclick="selectStyle(this, 'modern')">
+                    <i class="fas fa-sparkles"></i>
+                    <strong>Modern</strong>
+                    <div style="font-size:0.7rem; opacity:0.6; margin-top:5px;">Rounded, clean gradient</div>
+                </div>
+                <div class="style-option" onclick="selectStyle(this, 'retro')">
+                    <i class="fas fa-ticket"></i>
+                    <strong>Retro</strong>
+                    <div style="font-size:0.7rem; opacity:0.6; margin-top:5px;">Classic ticket cutout</div>
+                </div>
+                <div class="style-option" onclick="selectStyle(this, 'minimal')">
+                    <i class="fas fa-align-center"></i>
+                    <strong>Minimal</strong>
+                    <div style="font-size:0.7rem; opacity:0.6; margin-top:5px;">B&W for receipt printers</div>
+                </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top: 20px;">
+                <button type="button" class="btn btn-secondary" style="flex:1;"
+                    onclick="document.getElementById('print-modal').style.display='none'">Cancel</button>
+                <button type="button" class="btn" style="flex:2;" onclick="confirmPrint()">
+                    <i class="fas fa-print"></i> Confirm & Print
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function addCoupon(form) {
             const formData = new FormData(form);
@@ -149,6 +207,66 @@ $coupons = $stmt->fetchAll();
                     if (res.success) location.reload();
                     else alert(res.message);
                 });
+        }
+
+        let selectedStyle = 'standard';
+        let currentCouponData = {};
+
+        function openPrintModal(id, code, value, type, expiry) {
+            document.getElementById('print-coupon-id').value = id;
+            document.getElementById('modal-coupon-code').innerText = code;
+
+            currentCouponData = {
+                code: code,
+                value: value,
+                type: type,
+                expiry: expiry,
+                restaurant: "<?= addslashes(getSetting('restaurant_name', 'OBJSIS Restaurant')) ?>"
+            };
+
+            document.getElementById('print-modal').style.display = 'flex';
+
+            // Reset selection to standard
+            const options = document.querySelectorAll('.style-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[0].classList.add('selected');
+            selectedStyle = 'standard';
+            updatePreview();
+        }
+
+        function selectStyle(element, style) {
+            const options = document.querySelectorAll('.style-option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedStyle = style;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const container = document.getElementById('coupon-preview');
+            const data = currentCouponData;
+            const symbol = data.type === 'percent' ? '%' : ' €';
+            const expiryText = data.expiry ? `Valid until: ${new Date(data.expiry).toLocaleDateString()}` : '';
+
+            container.className = `preview-scale coupon-print-card style-${selectedStyle}`;
+            container.innerHTML = `
+                <div style="font-size: 1.2rem; font-weight: 600; opacity: 0.8;">${data.restaurant}</div>
+                <div class="print-code">${data.code}</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: #000; margin-bottom: 10px;">
+                    Value: -${parseFloat(data.value)}${symbol}
+                </div>
+                <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 15px;">${expiryText}</div>
+                <div style="font-size: 0.8rem; opacity: 0.5; margin-top: 20px; font-style: italic;">
+                    Preview Only
+                </div>
+            `;
+        }
+
+        function confirmPrint() {
+            const id = document.getElementById('print-coupon-id').value;
+            const url = `print_coupon.php?id=${id}&style=${selectedStyle}`;
+            window.open(url, '_blank', 'width=800,height=800');
+            document.getElementById('print-modal').style.display = 'none';
         }
     </script>
 </body>

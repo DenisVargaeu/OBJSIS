@@ -7,12 +7,7 @@
 }
 
 .coupon-ticket {
-    background: radial-gradient(circle at top left, transparent 20px, var(--card-bg) 21px);
-    background-size: 51% 100%;
-    background-repeat: no-repeat;
-    /* Replicate for Right side using multiple backgrounds or simplified card */
     background: var(--card-bg);
-    /* Simplified for web */
     border: 2px dashed var(--border-color);
     border-radius: 12px;
     padding: 20px;
@@ -71,4 +66,190 @@
 
 .delete-coupon-btn:hover {
     color: var(--danger);
+}
+
+.print-coupon-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.print-coupon-btn:hover {
+    color: var(--primary-color);
+}
+
+/* Modal Style Options */
+.style-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.style-option {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.style-option:hover {
+    border-color: var(--primary-color);
+    background: rgba(249, 115, 22, 0.05);
+}
+
+.style-option.selected {
+    border-color: var(--primary-color);
+    background: rgba(249, 115, 22, 0.1);
+}
+
+.style-option i {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    display: block;
+    color: var(--primary-color);
+}
+
+/* Print Specific Styles for print_coupon.php */
+.print-layout {
+    background: #fff;
+    color: #000;
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.coupon-print-card {
+    width: 400px;
+    padding: 30px;
+    text-align: center;
+    border: 2px solid #000;
+    position: relative;
+    background: #fff;
+}
+
+/* STANDARD STYLE */
+.style-standard {
+    border: 3px dashed var(--primary-color);
+    border-radius: 0;
+}
+
+.style-standard .print-code {
+    background: var(--primary-color);
+    color: #fff;
+    padding: 15px;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 20px 0;
+}
+
+/* MODERN STYLE */
+.style-modern {
+    border: none;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, var(--primary-color), #fcd34d);
+    color: #fff;
+}
+
+.style-modern .print-code {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 2.5rem;
+    margin: 20px 0;
+}
+
+/* RETRO STYLE */
+.style-retro {
+    border: 4px double #000;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.style-retro::before,
+.style-retro::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    top: 50%;
+    margin-top: -10px;
+}
+
+.style-retro::before {
+    left: -12px;
+    border-right: 2px solid #000;
+}
+
+.style-retro::after {
+    right: -12px;
+    border-left: 2px solid #000;
+}
+
+/* MINIMAL STYLE (Black & White) */
+.style-minimal {
+    border: 1px solid #000;
+    color: #000;
+}
+
+.style-minimal .print-code {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    padding: 10px;
+    font-size: 2.2rem;
+    margin: 20px 0;
+}
+
+@media print {
+    body {
+        background: #fff !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .print-layout {
+        min-height: auto;
+        padding: 0;
+    }
+
+    .coupon-print-card {
+        box-shadow: none !important;
+    }
+}
+
+/* Modal Preview Container */
+.preview-container {
+    background: #000;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    overflow: hidden;
+}
+
+.preview-scale {
+    transform: scale(0.6);
+    transform-origin: center;
+    width: 400px;
+    /* Base width from print card */
+    margin: -80px 0;
+    /* Compensation for scale 0.6 */
 }
