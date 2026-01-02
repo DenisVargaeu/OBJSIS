@@ -41,7 +41,13 @@ foreach ($categories as $cat) {
                     <h2 style="margin:0;">Menu Management</h2>
                     <p style="color:var(--text-muted); margin:0;">Organize categories and items</p>
                 </div>
-                <button class="btn" onclick="openAddItemModal()">+ Add New Item</button>
+                <div style="display: flex; gap: 10px;">
+                    <a href="import_menu.php" class="btn btn-secondary"
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color);">
+                        <i class="fas fa-file-import"></i> Import JSON
+                    </a>
+                    <button class="btn" onclick="openAddItemModal()">+ Add New Item</button>
+                </div>
             </div>
 
             <?php foreach ($categories as $category): ?>
