@@ -88,9 +88,9 @@ $bg_color_login = getSetting('bg_color_login', '#0f172a');
             <?php
             $flash = getFlashMessage();
             if ($flash): ?>
-                <div class="alert alert-<?= $flash['type'] ?>">
-                    <?= $flash['message'] ?>
-                </div>
+                    <div class="alert alert-<?= $flash['type'] ?>">
+                        <?= $flash['message'] ?>
+                    </div>
             <?php endif; ?>
 
             <div class="card" style="max-width: 600px;">
