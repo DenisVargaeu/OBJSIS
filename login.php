@@ -21,15 +21,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // We might need an ID + PIN, or just PIN. If just PIN, we need to hope it's unique or iterate.
         // Let's assume for MVP we fetch all users and check verifyPin.
 
-        $stmt = $pdo->query("SELECT * FROM users");
+        // Fetch user with Role details
+        $stmt = $pdo->query("SELECT u.*, r.name as role_name, r.permissions FROM users u LEFT JOIN roles r ON u.role_id = r.id");
         $users = $stmt->fetchAll();
 
         $user_found = false;
         foreach ($users as $user) {
+            // For MVP compatibility, if migration hasn't run or role_id is null, fall back to old role column
+            // But we enforced migration.
+
             if (verifyPin($pin, $user['pin_hash'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
-                $_SESSION['user_role'] = $user['role'];
+
+                // Use new role name, fallback to old if something weird happened
+                $role_name = $user['role_name'] ?? $user['role'];
+                $_SESSION['user_role'] = $role_name;
+
+                // Decode permissions
+                $permissions = isset($user['permissions']) ? json_decode($user['permissions'], true) : [];
+                $_SESSION['permissions'] = $permissions;
+
                 $user_found = true;
                 break;
             }

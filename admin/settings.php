@@ -38,7 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'bg_color_kiosk' => $bg_color_kiosk,
         'bg_type_login' => $bg_type_login,
         'bg_image_login' => $bg_image_login,
-        'bg_color_login' => $bg_color_login
+        'bg_color_login' => $bg_color_login,
+        'show_menu_photos' => $_POST['show_menu_photos'] ?? '1'
     ];
 
     foreach ($settings as $key => $value) {
@@ -88,9 +89,9 @@ $bg_color_login = getSetting('bg_color_login', '#0f172a');
             <?php
             $flash = getFlashMessage();
             if ($flash): ?>
-                    <div class="alert alert-<?= $flash['type'] ?>">
-                        <?= $flash['message'] ?>
-                    </div>
+                <div class="alert alert-<?= $flash['type'] ?>">
+                    <?= $flash['message'] ?>
+                </div>
             <?php endif; ?>
 
             <div class="card" style="max-width: 600px;">
@@ -136,6 +137,18 @@ $bg_color_login = getSetting('bg_color_login', '#0f172a');
                         <label for="bg_color_kiosk">Background Color</label>
                         <input type="color" id="bg_color_kiosk" name="bg_color_kiosk"
                             value="<?= htmlspecialchars($bg_color_kiosk) ?>" style="height: 45px; padding: 5px;">
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="show_menu_photos">Show Menu Photos</label>
+                        <select id="show_menu_photos" name="show_menu_photos">
+                            <option value="1" <?= getSetting('show_menu_photos', '1') === '1' ? 'selected' : '' ?>>Yes,
+                                Show Photos</option>
+                            <option value="0" <?= getSetting('show_menu_photos', '1') === '0' ? 'selected' : '' ?>>No, Text
+                                Only</option>
+                        </select>
+                        <small style="color:var(--text-muted); display:block; margin-top:5px;">If disabled, menu items
+                            will be displayed as compact cards without images.</small>
                     </div>
 
                     <h3 style="margin-top: 2rem;"><i class="fas fa-sign-in-alt"></i> Login Page Appearance</h3>

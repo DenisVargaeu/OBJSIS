@@ -12,7 +12,55 @@ function isLoggedIn()
 function requireLogin()
 {
     if (!isLoggedIn()) {
-        header("Location: /login.php");
+        header("Location: ../login.php");
+        exit;
+    }
+}
+
+/**
+ * Check if user has permission for a specific page
+ * @param string $page e.g., 'users.php'
+ * @return bool
+ */
+function hasPermission($page)
+{
+    // Admin role usually has all access, but better to rely on permissions array.
+    // However, if we want a hard override:
+    if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+        return true;
+    }
+
+    if (!isset($_SESSION['permissions'])) {
+        return false;
+    }
+
+    // Normalize page name (remove path)
+    $page = basename($page);
+
+    // If permissions is an array, check it
+    if (is_array($_SESSION['permissions']) && in_array($page, $_SESSION['permissions'])) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Enforce permission on a page
+ */
+function checkPermission($page)
+{
+    if (!hasPermission($page)) {
+        // If it's an API call, return JSON
+        if (strpos($_SERVER['SCRIPT_NAME'], '/api/') !== false) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            exit;
+        }
+
+        // Otherwise redirect to dashboard or error
+        setFlashMessage("Access Denied: You do not have permission to view this page.", "error");
+        header("Location: dashboard.php");
         exit;
     }
 }

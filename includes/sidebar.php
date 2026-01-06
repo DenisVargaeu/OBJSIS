@@ -28,23 +28,31 @@ function isActive($page, $current)
                 <i class="fas fa-chevron-down"></i>
             </div>
             <ul class="nav-links">
-                <li class="nav-item">
-                    <a href="dashboard.php" class="nav-link <?= isActive('dashboard.php', $current_page) ?>"
-                        title="Dashboard">
-                        <i class="fas fa-home"></i> <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="orders.php" class="nav-link <?= isActive('orders.php', $current_page) ?>"
-                        title="Active Orders">
-                        <i class="fas fa-receipt"></i> <span>Active Orders</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="tables.php" class="nav-link <?= isActive('tables.php', $current_page) ?>" title="Tables">
-                        <i class="fas fa-chair"></i> <span>Tables</span>
-                    </a>
-                </li>
+                <?php if (hasPermission('dashboard.php')): ?>
+                    <li class="nav-item">
+                        <a href="dashboard.php" class="nav-link <?= isActive('dashboard.php', $current_page) ?>"
+                            title="Dashboard">
+                            <i class="fas fa-home"></i> <span>Dashboard</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('orders.php')): ?>
+                    <li class="nav-item">
+                        <a href="orders.php" class="nav-link <?= isActive('orders.php', $current_page) ?>"
+                            title="Active Orders">
+                            <i class="fas fa-receipt"></i> <span>Active Orders</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('tables.php')): ?>
+                    <li class="nav-item">
+                        <a href="tables.php" class="nav-link <?= isActive('tables.php', $current_page) ?>" title="Tables">
+                            <i class="fas fa-chair"></i> <span>Tables</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </div>
 
@@ -55,70 +63,111 @@ function isActive($page, $current)
                 <i class="fas fa-chevron-down"></i>
             </div>
             <ul class="nav-links">
-                <li class="nav-item">
-                    <a href="menu.php" class="nav-link <?= isActive('menu.php', $current_page) ?>" title="Menu">
-                        <i class="fas fa-utensils"></i> <span>Menu</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="inventory.php" class="nav-link <?= isActive('inventory.php', $current_page) ?>"
-                        title="Inventory">
-                        <i class="fas fa-boxes"></i> <span>Inventory</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="coupons.php" class="nav-link <?= isActive('coupons.php', $current_page) ?>"
-                        title="Coupons">
-                        <i class="fas fa-ticket-alt"></i> <span>Coupons</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="shifts.php" class="nav-link <?= isActive('shifts.php', $current_page) ?>" title="Shifts">
-                        <i class="fas fa-clock"></i> <span>Shifts</span>
-                    </a>
-                </li>
+                <?php if (hasPermission('menu.php')): ?>
+                    <li class="nav-item">
+                        <a href="menu.php" class="nav-link <?= isActive('menu.php', $current_page) ?>" title="Menu">
+                            <i class="fas fa-utensils"></i> <span>Menu</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('categories.php')): ?>
+                    <li class="nav-item">
+                        <a href="categories.php" class="nav-link <?= isActive('categories.php', $current_page) ?>"
+                            title="Categories">
+                            <i class="fas fa-tags"></i> <span>Categories</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('inventory.php')): ?>
+                    <li class="nav-item">
+                        <a href="inventory.php" class="nav-link <?= isActive('inventory.php', $current_page) ?>"
+                            title="Inventory">
+                            <i class="fas fa-boxes"></i> <span>Inventory</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('coupons.php')): ?>
+                    <li class="nav-item">
+                        <a href="coupons.php" class="nav-link <?= isActive('coupons.php', $current_page) ?>"
+                            title="Coupons">
+                            <i class="fas fa-ticket-alt"></i> <span>Coupons</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('shifts.php')): ?>
+                    <li class="nav-item">
+                        <a href="shifts.php" class="nav-link <?= isActive('shifts.php', $current_page) ?>" title="Shifts">
+                            <i class="fas fa-clock"></i> <span>Shifts</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </div>
 
         <!-- Group: System & History -->
-        <?php if ($user_role === 'admin'): ?>
-            <div class="nav-group" id="group-system">
-                <div class="nav-group-header" onclick="toggleNavGroup('group-system')">
-                    <span>System & Logs</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <ul class="nav-links">
+        <div class="nav-group" id="group-system">
+            <div class="nav-group-header" onclick="toggleNavGroup('group-system')">
+                <span>System & Logs</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <ul class="nav-links">
+                <?php if (hasPermission('users.php')): ?>
                     <li class="nav-item">
                         <a href="users.php" class="nav-link <?= isActive('users.php', $current_page) ?>" title="Employees">
                             <i class="fas fa-users"></i> <span>Employees</span>
                         </a>
                     </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('roles.php')): ?>
+                    <li class="nav-item">
+                        <a href="roles.php" class="nav-link <?= isActive('roles.php', $current_page) ?>"
+                            title="Roles & Permissions">
+                            <i class="fas fa-user-shield"></i> <span>Roles</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('stats.php')): ?>
                     <li class="nav-item">
                         <a href="stats.php" class="nav-link <?= isActive('stats.php', $current_page) ?>" title="Statistics">
                             <i class="fas fa-chart-line"></i> <span>Statistics</span>
                         </a>
                     </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('history.php')): ?>
                     <li class="nav-item">
                         <a href="history.php" class="nav-link <?= isActive('history.php', $current_page) ?>"
                             title="History">
                             <i class="fas fa-history"></i> <span>History</span>
                         </a>
                     </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('updates.php')): ?>
                     <li class="nav-item">
                         <a href="updates.php" class="nav-link <?= isActive('updates.php', $current_page) ?>"
                             title="Updates">
                             <i class="fas fa-sync"></i> <span>Updates</span>
                         </a>
                     </li>
+                <?php endif; ?>
+
+                <?php if (hasPermission('settings.php')): ?>
                     <li class="nav-item">
                         <a href="settings.php" class="nav-link <?= isActive('settings.php', $current_page) ?>"
                             title="Settings">
                             <i class="fas fa-cog"></i> <span>Settings</span>
                         </a>
                     </li>
-                </ul>
-            </div>
-        <?php endif; ?>
+                <?php endif; ?>
+            </ul>
+        </div>
     </div>
 
     <div class="user-profile">

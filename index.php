@@ -235,21 +235,33 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                                             <div class="sold-out-badge">SOLD OUT</div>
                                         <?php endif; ?>
 
-                                        <div style="height: 200px; background-color: #333; position: relative;">
-                                            <?php if ($item['image_url']): ?>
-                                                <img src="<?= htmlspecialchars($item['image_url']) ?>"
-                                                    style="width:100%; height:100%; object-fit:cover; border-radius: 0;">
-                                            <?php else: ?>
+                                        <?php if (getSetting('show_menu_photos', '1') === '1'): ?>
+                                            <div style="height: 200px; background-color: #333; position: relative;">
+                                                <?php if ($item['image_url']): ?>
+                                                    <img src="<?= htmlspecialchars($item['image_url']) ?>"
+                                                        style="width:100%; height:100%; object-fit:cover; border-radius: 0;">
+                                                <?php else: ?>
+                                                    <div
+                                                        style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.1); font-size:3rem;">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <div
-                                                    style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.1); font-size:3rem;">
-                                                    <i class="fas fa-image"></i>
+                                                    style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 20px; font-weight: bold;">
+                                                    <?= number_format($item['price'], 2) ?> €
                                                 </div>
-                                            <?php endif; ?>
-                                            <div
-                                                style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 20px; font-weight: bold;">
-                                                <?= number_format($item['price'], 2) ?> €
                                             </div>
-                                        </div>
+                                        <?php else: ?>
+                                            <!-- No Photo Mode -->
+                                            <div
+                                                style="padding: 15px 20px 0 20px; display:flex; justify-content:space-between; align-items:flex-start;">
+                                                <div></div>
+                                                <div
+                                                    style="background: rgba(255,255,255,0.1); color: #fff; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size:0.9rem;">
+                                                    <?= number_format($item['price'], 2) ?> €
+                                                </div>
+                                            </div>
+                                        <?php endif; ?>
 
                                         <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
                                             <h3 style="margin-bottom: 10px;"><?= htmlspecialchars($item['name']) ?></h3>

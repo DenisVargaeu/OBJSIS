@@ -3,6 +3,7 @@
 require_once '../config/db.php';
 require_once '../includes/functions.php';
 requireLogin();
+checkPermission('menu.php');
 
 // Fetch Categories
 $stmt = $pdo->query("SELECT * FROM categories ORDER BY sort_order ASC");
