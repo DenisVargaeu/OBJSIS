@@ -630,7 +630,7 @@ $step = $_GET['step'] ?? 1;
 \$username = '{$db_config['db_user']}';
 \$password = '{$db_config['db_pass']}';
 
-define('OBJSIS_VERSION', '2.2.0');
+
 
 try {
     \$pdo = new PDO(\"mysql:host=\$host;dbname=\$db_name;charset=utf8mb4\", \$username, \$password);

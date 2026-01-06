@@ -143,16 +143,16 @@ function isActive($page, $current)
 
 <script>
     function toggleSidebar() {
+        const body = document.body;
         const sidebar = document.getElementById('mainSidebar');
-        const mainContent = document.querySelector('.main-content');
+        // Toggle class on body for reliable styling
+        body.classList.toggle('sidebar-collapsed-state');
+
+        // Toggle class on sidebar (legacy support/specific animations)
         sidebar.classList.toggle('collapsed');
 
-        if (mainContent) {
-            mainContent.classList.toggle('expanded');
-        }
-
         // Save state
-        localStorage.setItem('sidebar_collapsed', sidebar.classList.contains('collapsed'));
+        localStorage.setItem('sidebar_collapsed', body.classList.contains('sidebar-collapsed-state'));
     }
 
     function toggleNavGroup(groupId) {
@@ -167,11 +167,12 @@ function isActive($page, $current)
         localStorage.setItem('nav_group_states', JSON.stringify(groupStates));
     }
 
-    // Restore Global Sidebar State
+    // Restore Global Sidebar State IMMEDIATELY
+    // This runs before the body is fully rendered, but classList works on body if it exists, or we add to documentElement if needed. 
+    // Actually, at this point in the DOM (end of sidebar inclusion), body exists.
     if (localStorage.getItem('sidebar_collapsed') === 'true') {
+        document.body.classList.add('sidebar-collapsed-state');
         document.getElementById('mainSidebar').classList.add('collapsed');
-        const mainContent = document.querySelector('.main-content');
-        if (mainContent) mainContent.classList.add('expanded');
     }
 
     // Restore Nav Group States
