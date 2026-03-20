@@ -2,24 +2,25 @@
 
 .tables-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 25px;
-    padding: 20px 0;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 30px;
+    padding: 24px 0;
 }
 
 .table-card {
     background: var(--card-bg);
-    border: 2px solid var(--border-color);
-    border-radius: 16px;
-    height: 180px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    height: 200px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition-base);
     cursor: pointer;
     overflow: hidden;
+    box-shadow: var(--shadow-md);
 }
 
 .table-card::before {
@@ -28,85 +29,95 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 4px;
-    background: var(--text-muted);
-    transition: background 0.3s;
+    height: 6px;
+    background: var(--text-dim);
+    transition: var(--transition-base);
 }
 
 .table-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-color);
 }
 
 .table-icon {
-    font-size: 3rem;
-    color: var(--text-muted);
+    font-size: 3.5rem;
+    color: var(--text-dim);
     margin-bottom: 15px;
-    transition: color 0.3s;
+    transition: var(--transition-base);
 }
 
 .table-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 5px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
 }
 
 .table-capacity {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
     color: var(--text-muted);
     background: rgba(255, 255, 255, 0.05);
-    padding: 4px 10px;
-    border-radius: 20px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+body.light-mode .table-capacity {
+    background: rgba(0, 0, 0, 0.03);
 }
 
 /* Status States */
 .status-free .table-card::before {
     background: var(--success);
+    box-shadow: 0 0 15px var(--success);
 }
 
 .status-free .table-icon {
     color: var(--success);
-    opacity: 0.8;
-}
-
-.status-free:hover {
-    border-color: var(--success);
+    opacity: 0.9;
 }
 
 .status-occupied .table-card::before {
     background: var(--danger);
+    box-shadow: 0 0 15px var(--danger);
 }
 
 .status-occupied .table-icon {
     color: var(--danger);
-    opacity: 0.8;
-}
-
-.status-occupied:hover {
-    border-color: var(--danger);
+    opacity: 0.9;
 }
 
 .status-reserved .table-card::before {
     background: var(--warning);
+    box-shadow: 0 0 15px var(--warning);
 }
 
 .status-reserved .table-icon {
     color: var(--warning);
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 /* Add Button Card */
 .add-table-card {
     border: 2px dashed var(--border-color);
-    background: transparent;
+    background: rgba(255, 255, 255, 0.02);
 }
 
 .add-table-card:hover {
     border-color: var(--primary-color);
-    background: rgba(249, 115, 22, 0.05);
+    background: rgba(251, 146, 60, 0.05);
 }
 
 .add-table-card .table-icon {
     color: var(--primary-color);
+    opacity: 0.5;
+}
+
+.add-table-card:hover .table-icon {
+    opacity: 1;
+    transform: scale(1.1);
 }

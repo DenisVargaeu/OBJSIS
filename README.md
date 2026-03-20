@@ -1,7 +1,7 @@
 
 # 🍽️ OBJSIS V2 - Restaurant Management System
 
-![Version](https://img.shields.io/badge/version-2.2.0-orange)
+![Version](https://img.shields.io/badge/version-2.5.0-orange)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-blue)
 ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-red)
@@ -9,18 +9,19 @@
 
 A comprehensive, modern restaurant management system with order tracking, employee management, inventory control, and customer-facing kiosk interface.
 
-## ✨ Features
+## ✨ Features (v2.5.0 Highlight)
 
-* 🌓 **V2 Theme Engine** - Premium Dark/Light mode with smooth transitions and dynamic icons
-* 🔐 **Secure PIN-based login** with role management (Admin, Cook, Waiter)
-* 📱 **Customer kiosk** for self-service ordering with category-based navigation
-* 🍔 **Dynamic menu management** with categories and availability toggle
-* 📊 **Real-time order tracking** with specialized workspace
-* 🎟️ **Advanced coupon system** with expiration dates and usage limits
-* 📜 **Collapsible Sidebar** - Organized navigation with per-section state persistence
-* 🧾 **Receipt generation** and printing
-* 📈 **Sales statistics** and inventory tracking
-* 🔄 **Built-in Updater** - One-click system updates
+* 📊 **Real-time AJAX Dashboard** - Flicker-free data updates with interactive **Chart.js** analytics.
+* 👨‍🍳 **Elite KDS (Kitchen Display System)** - High-visibility "Kitchen Mode" with urgency color-coding and audio alerts.
+* 🌓 **V2 Theme Engine** - Premium Glassmorphic design across all 15+ administrative pages.
+* 🔔 **Live Navigation Badges** - Global real-time order count indicators in the sidebar.
+* 🔐 **Secure PIN-based login** with role management (Admin, Cook, Waiter, Manager).
+* 📱 **Customer kiosk** for self-service ordering with category-based navigation.
+* 🍔 **Dynamic menu management** with categories and availability toggle.
+* 🎟️ **Advanced coupon system** with expiration dates and usage limits.
+* 🧾 **Receipt generation** and printing.
+* 📉 **Business Intelligence** - Detailed sales reports and inventory stock tracking.
+* 🔄 **Built-in Updater** - One-click system updates and patching.
 
 ---
 
@@ -40,7 +41,7 @@ A comprehensive, modern restaurant management system with order tracking, employ
    C:\xampp\htdocs\objsis-v2\
    ```
 2. **Configure database connection**
-
+   Edit `config/db.php`:
    ```php
    $host = 'localhost';
    $db_name = 'objsis_v2';
@@ -73,11 +74,11 @@ A comprehensive, modern restaurant management system with order tracking, employ
 
 ```
 OBJSIS V2/
-├── admin/              # Admin panel pages
-├── api/                # Backend API & Shift actions
-├── assets/             # CSS, JS, Images
-├── includes/           # Functions & helpers
-├── sql/                # Database schema
+├── admin/              # Modernized admin panel pages
+├── api/                # Real-time backend API (AJAX)
+├── assets/             # CSS (Glassmorphism), JS, Charts
+├── includes/           # Functions & Layout helpers
+├── sql/                # Database schema (v2.5.0)
 └── index.php           # Customer kiosk
 ```
 
@@ -85,16 +86,16 @@ OBJSIS V2/
 
 ## 👥 User Roles
 
-* **Admin**: Full access, manage employees/menu/tables/coupons, view stats
-* **Cook**: View/update order status
-* **Waiter**: Take/update orders
-* **Inventory Manager**: Manage stock, recipes, logs
+* **Admin**: Full access, manage employees/menu/tables/coupons, view BI stats
+* **Cook**: Specialized KDS view with urgency alerts
+* **Waiter**: Take/update orders with live status feedback
+* **Manager**: Manage stock, recipes, and detailed reports
 
 ---
 
 ## 🔐 Security Notes
 
-* Change default admin PIN
+* Change default admin PIN immediately
 * Delete installer after setup
 * Keep database credentials secure
 * Use HTTPS in production
@@ -110,32 +111,24 @@ This source code may **not** be copied, modified, or distributed without explici
 
 ---
 
-## 🆘 Support
+## 🗺️ Roadmap (Updated)
 
-* Check README
-* Review error logs
-* Verify database connection
+**Phase 6 (Current Focus)**
 
----
+* [x] Real-time Dashboard (AJAX)
+* [x] Kitchen Display System (KDS)
+* [x] Advanced Business Intelligence (Charts)
+* [x] Global Sidebar Badges
+* [ ] Training mode logic
+* [ ] Multi-language support (SK, EN, DE) - *Structural prep complete*
 
-## 🗺️ Roadmap
+**History (Completed)**
 
-**Phase 5 (Future)**
-
-* [ ] Database backup/restore
-* [ ] Training mode
-* [ ] Multi-language support (SK, EN, DE)
-* [ ] Mobile app for waiters
-* [ ] Kitchen display system
-
-**Phase 6 (Complete)**
-
-* [x] Inventory management
-* [x] Recipe-based stock deduction
-* [x] Sold-out UI refinements
+* [x] Inventory management & Recipe deduction
+* [x] V2 Glassmorphic Theme Engine
+* [x] Built-in Software Updater
 
 ---
 
 **Developed with ❤️ for restaurant efficiency**
 **Star ⭐ this repository if you find it helpful!**
-

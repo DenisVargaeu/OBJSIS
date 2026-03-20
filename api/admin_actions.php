@@ -24,10 +24,25 @@ try {
             $desc = $_POST['description'];
             $price = $_POST['price'];
             $cat_id = $_POST['category_id'];
-            $img_url = $_POST['image_url']; // For MVP, simple text URL
+            $img_url = $_POST['image_url'];
+            $allergens = $_POST['allergens'] ?? '';
 
-            $stmt = $pdo->prepare("INSERT INTO menu_items (category_id, name, description, price, image_url) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$cat_id, $name, $desc, $price, $img_url]);
+            $stmt = $pdo->prepare("INSERT INTO menu_items (category_id, name, description, price, image_url, allergens) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$cat_id, $name, $desc, $price, $img_url, $allergens]);
+            echo json_encode(['success' => true]);
+            break;
+
+        case 'edit_item':
+            $id = $_POST['id'];
+            $name = $_POST['name'];
+            $desc = $_POST['description'];
+            $price = $_POST['price'];
+            $cat_id = $_POST['category_id'];
+            $img_url = $_POST['image_url'];
+            $allergens = $_POST['allergens'] ?? '';
+
+            $stmt = $pdo->prepare("UPDATE menu_items SET category_id = ?, name = ?, description = ?, price = ?, image_url = ?, allergens = ? WHERE id = ?");
+            $stmt->execute([$cat_id, $name, $desc, $price, $img_url, $allergens, $id]);
             echo json_encode(['success' => true]);
             break;
 
@@ -128,6 +143,31 @@ try {
         case 'delete_table':
             $id = $_POST['id'];
             $stmt = $pdo->prepare("DELETE FROM tables WHERE id = ?");
+            $stmt->execute([$id]);
+            echo json_encode(['success' => true]);
+            break;
+
+        // --- CATEGORY ACTIONS ---
+        case 'add_category':
+            $name = $_POST['name'];
+            $sort_order = $_POST['sort_order'] ?? 0;
+            $stmt = $pdo->prepare("INSERT INTO categories (name, sort_order) VALUES (?, ?)");
+            $stmt->execute([$name, $sort_order]);
+            echo json_encode(['success' => true]);
+            break;
+
+        case 'edit_category':
+            $id = $_POST['id'];
+            $name = $_POST['name'];
+            $sort_order = $_POST['sort_order'] ?? 0;
+            $stmt = $pdo->prepare("UPDATE categories SET name = ?, sort_order = ? WHERE id = ?");
+            $stmt->execute([$name, $sort_order, $id]);
+            echo json_encode(['success' => true]);
+            break;
+
+        case 'delete_category':
+            $id = $_POST['id'];
+            $stmt = $pdo->prepare("DELETE FROM categories WHERE id = ?");
             $stmt->execute([$id]);
             echo json_encode(['success' => true]);
             break;

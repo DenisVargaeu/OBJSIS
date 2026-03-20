@@ -146,10 +146,10 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
         <div class="kiosk-hero"
             style="min-height: 100vh; margin: 0; display:flex; flex-direction:column; align-items:center; overflow-y: auto;">
             <div style="text-align: center; margin-top: 60px; margin-bottom: 20px; z-index:2;">
-                <h1 style="font-size: 3.5rem; margin-bottom: 10px; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">Welcome to
-                    <?= htmlspecialchars(getSetting('restaurant_name', 'OBJSIS')) ?>
+                <h1 style="font-size: 3.5rem; margin-bottom: 10px; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+                    <span data-i18n="welcome">Welcome to</span> <?= htmlspecialchars(getSetting('restaurant_name', 'OBJSIS')) ?>
                 </h1>
-                <p style="font-size: 1.2rem; opacity: 0.9;">Please select your table to start ordering</p>
+                <p style="font-size: 1.2rem; opacity: 0.9;" data-i18n="select_table">Please select your table to start ordering</p>
             </div>
 
             <div class="tables-grid-customer" style="width: 100%; z-index:2; padding-bottom: 50px;">
@@ -158,7 +158,7 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                         <a href="?table=<?= $tbl['id'] ?>" class="table-card-customer status-free">
                             <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 10px; color: var(--success);"></i>
                             <div style="font-size: 1.5rem; font-weight: bold;"><?= htmlspecialchars($tbl['name']) ?></div>
-                            <div style="font-size: 0.9rem; opacity: 0.7;">Capacity: <?= $tbl['capacity'] ?></div>
+                            <div style="font-size: 0.9rem; opacity: 0.7;"><span data-i18n="capacity">Capacity</span>: <?= $tbl['capacity'] ?></div>
                         </a>
                     <?php else: ?>
                         <div class="table-card-customer status-<?= $tbl['status'] ?>">
@@ -170,7 +170,7 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
             </div>
 
             <div style="margin-top: 2rem; z-index: 2; margin-bottom: 20px;">
-                <a href="login.php" style="color: var(--text-muted); opacity: 0.6; font-size: 0.9rem;">Staff Login</a>
+                <a href="login.php" style="color: var(--text-muted); opacity: 0.6; font-size: 0.9rem;" data-i18n="staff_login">Staff Login</a>
             </div>
         </div>
     <?php else: ?>
@@ -179,7 +179,7 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
             <div class="table-info-container">
                 <div class="table-badge-large">
                     <i class="fas fa-map-marker-alt" style="color:var(--primary-color)"></i>
-                    Table <?= htmlspecialchars($table_number) ?>
+                    <span data-i18n="table">Table</span> <?= htmlspecialchars($table_number) ?>
                 </div>
 
                 <?php if (!empty($active_orders)): ?>
@@ -193,13 +193,26 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                 <?php endif; ?>
             </div>
 
-            <div style="z-index: 2; position: relative;">
-                <h1 style="font-size: 3rem; margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
-                    <?= !empty($active_orders) ? 'Ordering More?' : 'Our Menu' ?>
-                </h1>
-                <p style="color: rgba(255,255,255,0.9); text-shadow: 0 1px 4px rgba(0,0,0,0.5);">
-                    <?= !empty($active_orders) ? 'Add delicious items to your active orders' : 'Select a category to browse' ?>
-                </p>
+            <!-- Menu Header & Search -->
+            <div style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div style="z-index: 2; position: relative;">
+                        <h1 style="font-size: 3rem; margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);" data-i18n="<?= !empty($active_orders) ? 'ordering_more' : 'our_menu' ?>">
+                            <?= !empty($active_orders) ? 'Ordering More?' : 'Our Menu' ?>
+                        </h1>
+                        <p style="color: rgba(255,255,255,0.9); text-shadow: 0 1px 4px rgba(0,0,0,0.5);" data-i18n="<?= !empty($active_orders) ? 'add_more_desc' : 'select_cat_desc' ?>">
+                            <?= !empty($active_orders) ? 'Add delicious items to your active orders' : 'Select a category to browse' ?>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Live Search -->
+                <div style="position: relative; z-index: 2;">
+                    <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); opacity: 0.5;"></i>
+                    <input type="text" id="menu-search" onkeyup="filterMenu()"
+                           data-i18n="search_hint" placeholder="Search for food..."
+                           style="width: 100%; padding: 15px 15px 15px 45px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg-glass); color: var(--text-main); backdrop-filter: blur(10px); box-shadow: var(--shadow-sm); font-size: 1rem;">
+                </div>
             </div>
         </div>
 
@@ -232,7 +245,7 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                                         style="padding: 0; overflow: hidden; display: flex; flex-direction: column; position: relative;">
 
                                         <?php if (!$item['is_available']): ?>
-                                            <div class="sold-out-badge">SOLD OUT</div>
+                                            <div class="sold-out-badge" data-i18n="sold_out">SOLD OUT</div>
                                         <?php endif; ?>
 
                                         <?php if (getSetting('show_menu_photos', '1') === '1'): ?>
@@ -265,6 +278,11 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
 
                                         <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
                                             <h3 style="margin-bottom: 10px;"><?= htmlspecialchars($item['name']) ?></h3>
+                                            <?php if ($item['allergens']): ?>
+                                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
+                                                    <span data-i18n="allergens">Allergens</span>: <?= htmlspecialchars($item['allergens']) ?>
+                                                </div>
+                                            <?php endif; ?>
                                             <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; flex: 1;">
                                                 <?= htmlspecialchars($item['description']) ?>
                                             </p>
@@ -272,11 +290,11 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                                             <?php if ($item['is_available']): ?>
                                                 <button class="btn" style="width: 100%;"
                                                     onclick="addToCart(<?= $item['id'] ?>, '<?= addslashes($item['name']) ?>', <?= $item['price'] ?>)">
-                                                    Add <i class="fas fa-plus" style="margin-left: 8px;"></i>
+                                                    <span data-i18n="add">Add</span> <i class="fas fa-plus" style="margin-left: 8px;"></i>
                                                 </button>
                                             <?php else: ?>
                                                 <button class="btn" style="width: 100%; background: #444; cursor: not-allowed;" disabled>
-                                                    Out of Stock <i class="fas fa-times" style="margin-left: 8px;"></i>
+                                                    <span data-i18n="out_of_stock">Out of Stock</span> <i class="fas fa-times" style="margin-left: 8px;"></i>
                                                 </button>
                                             <?php endif; ?>
                                         </div>
@@ -341,7 +359,7 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
             <!-- Cart Drawer -->
             <div id="cart-modal">
                 <div class="cart-header">
-                    <h3 style="margin:0;">Your Order</h3>
+                    <h3 style="margin:0;" data-i18n="your_order">Your Order</h3>
                     <button onclick="toggleCart()"
                         style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.5rem;">
                         <i class="fas fa-times"></i>
@@ -368,24 +386,24 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                     <div style="margin-bottom: 15px;">
                         <div
                             style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem; color:var(--text-muted);">
-                            <span>Subtotal:</span>
+                            <span data-i18n="subtotal">Subtotal:</span>
                             <span id="cart-subtotal">0.00 €</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem; color: var(--success); display:none;"
                             id="discount-row">
-                            <span>Discount:</span>
+                            <span data-i18n="discount">Discount:</span>
                             <span id="cart-discount">-0.00 €</span>
                         </div>
                         <div
                             style="display:flex; justify-content:space-between; font-weight:700; font-size: 1.3rem; color:var(--text-main); border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 5px;">
-                            <span>Total:</span>
+                            <span data-i18n="total">Total:</span>
                             <span><span id="cart-total">0.00</span> €</span>
                         </div>
                     </div>
 
                     <button onclick="placeOrder()" class="btn"
                         style="width:100%; padding: 15px; font-size: 1.1rem; justify-content: center; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);">
-                        Confirm Order <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+                        <span data-i18n="confirm_order">Confirm Order</span> <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
                     </button>
                 </div>
             </div>
@@ -393,7 +411,7 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
 
             <p
                 style="text-align: center; margin-top: 2rem; position: fixed; bottom: 10px; left: 0; width: 100%; pointer-events: none; display: flex; flex-direction: column; gap: 5px;">
-                <a href="?exit=1" style="color: rgba(255,255,255,0.2); pointer-events: auto; font-size: 0.8rem;">Exit
+                <a href="?exit=1" style="color: rgba(255,255,255,0.2); pointer-events: auto; font-size: 0.8rem;" data-i18n="exit_table">Exit
                     Table</a>
                 <span
                     style="color: rgba(255,255,255,0.1); font-size: 0.7rem; pointer-events: auto;"><?= OBJSIS_VERSION ?></span>
@@ -406,6 +424,145 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
         style="position:fixed; top:20px; left:20px; width:40px; height:40px; background:var(--card-bg-glass); border:1px solid var(--border-color); border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; z-index:2000; backdrop-filter:blur(5px); color:var(--text-muted); box-shadow:var(--shadow-sm);">
         <i class="fas fa-adjust"></i>
     </div>
+
+    <!-- Language Switcher -->
+    <div onclick="toggleLanguage()"
+        style="position:fixed; top:70px; left:20px; width:40px; height:40px; background:var(--card-bg-glass); border:1px solid var(--border-color); border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; z-index:2000; backdrop-filter:blur(5px); color:var(--text-muted); box-shadow:var(--shadow-sm); font-weight: 800; font-size: 0.7rem;">
+        <span id="lang-indicator">EN</span>
+    </div>
+
+    <!-- Order Tracking Trigger -->
+    <div onclick="toggleTracking()"
+        style="position:fixed; top:120px; left:20px; width:40px; height:40px; background:var(--card-bg-glass); border:1px solid var(--border-color); border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; z-index:2000; backdrop-filter:blur(5px); color:var(--text-muted); box-shadow:var(--shadow-sm);">
+        <i class="fas fa-clock-rotate-left"></i>
+    </div>
+
+    <!-- Tracking Modal -->
+    <div id="tracking-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; justify-content:center; align-items:center;">
+        <div class="card" style="width:400px; max-width:90%; padding:30px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 data-i18n="order_tracking">Track Your Orders</h3>
+                <button onclick="toggleTracking()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">&times;</button>
+            </div>
+            <div id="tracking-content">
+                <!-- Statuses loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLang = localStorage.getItem('kiosk_lang') || 'en';
+        let translations = null;
+
+        async function initI18n() {
+            const res = await fetch('assets/lang.json');
+            translations = await res.json();
+            updateINDICATOR();
+            applyTranslations();
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'sk' : 'en';
+            localStorage.setItem('kiosk_lang', currentLang);
+            updateINDICATOR();
+            applyTranslations();
+        }
+
+        function updateINDICATOR() {
+            document.getElementById('lang-indicator').innerText = currentLang.toUpperCase();
+        }
+
+        function applyTranslations() {
+            if (!translations) return;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    // Check if it's an input placeholder
+                    if (el.tagName === 'INPUT') {
+                        el.placeholder = translations[currentLang][key];
+                    } else {
+                        // Preserve existing icons if any (simple hack: only replace text if no children OR specific handling)
+                        const icon = el.querySelector('i');
+                        if (icon) {
+                            // Find the text node and replace it
+                            el.childNodes.forEach(node => {
+                                if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0) {
+                                    node.textContent = translations[currentLang][key];
+                                }
+                            });
+                        } else {
+                            el.innerText = translations[currentLang][key];
+                        }
+                    }
+                }
+            });
+            // Update tracking content if open
+            if(document.getElementById('tracking-modal').style.display === 'flex') {
+                updateTracking();
+            }
+        }
+
+        initI18n();
+
+        // --- Live Search ---
+        function filterMenu() {
+            const query = document.getElementById('menu-search').value.toLowerCase();
+            const items = document.querySelectorAll('.item-card');
+            
+            items.forEach(card => {
+                const name = card.querySelector('h3').innerText.toLowerCase();
+                const desc = card.querySelector('p').innerText.toLowerCase();
+                if (name.includes(query) || desc.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // --- Order Tracking ---
+        function toggleTracking() {
+            const modal = document.getElementById('tracking-modal');
+            modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+            if(modal.style.display === 'flex') updateTracking();
+        }
+
+        async function updateTracking() {
+            const content = document.getElementById('tracking-content');
+            const tableId = new URLSearchParams(window.location.search).get('table');
+            if(!tableId) return;
+
+            try {
+                const res = await fetch(`api/order_status.php?table_id=${tableId}`);
+                const data = await res.json();
+                
+                if(data.success) {
+                    if(data.orders.length === 0) {
+                        content.innerHTML = `<p style="text-align:center; opacity:0.5;" data-i18n="no_active_orders">${translations[currentLang]['no_active_orders']}</p>`;
+                    } else {
+                        content.innerHTML = data.orders.map(o => `
+                            <div style="padding:15px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid var(--border-color); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-weight:700; color:var(--text-main);">Order #${o.id}</div>
+                                    <div style="font-size:0.8rem; color:var(--text-muted);">${new Date(o.created_at).toLocaleTimeString()}</div>
+                                </div>
+                                <div class="status-badge status-${o.status}" style="font-size:0.7rem; padding:4px 10px; border-radius:20px; background: var(--primary-color); color:white; font-weight:800; text-transform:uppercase;">
+                                    ${translations[currentLang]['status_' + o.status] || o.status}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch(e) {
+                console.error("Tracking update failed", e);
+            }
+        }
+        
+        // Auto-refresh tracking if modal is open
+        setInterval(() => {
+            if(document.getElementById('tracking-modal').style.display === 'flex') updateTracking();
+        }, 10000);
+    </script>
 
     <script src="assets/js/theme.js"></script>
 </body>

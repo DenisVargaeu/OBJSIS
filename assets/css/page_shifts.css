@@ -1,53 +1,83 @@
 /* assets/css/page_shifts.css */
 
 .shift-header-card {
-    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.05) 100%);
+    background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 30px;
+    border-radius: var(--border-radius);
+    padding: 30px 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.shift-header-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary-color);
 }
 
 .shift-status-active {
     color: var(--success);
-    font-weight: bold;
+    font-weight: 800;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.2rem;
+    gap: 12px;
+    font-size: 1.4rem;
+    letter-spacing: -0.5px;
 }
 
 .shift-status-inactive {
-    color: var(--text-muted);
+    color: var(--text-dim);
+    font-weight: 600;
 }
 
 .shift-history-table {
     width: 100%;
     border-collapse: collapse;
     background: var(--card-bg);
-    border-radius: 12px;
+    border-radius: var(--border-radius);
     overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
 }
 
 .shift-history-table th,
 .shift-history-table td {
-    padding: 15px;
+    padding: 18px 24px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
 
 .shift-history-table th {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.02);
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+body.light-mode .shift-history-table th {
+    background: #f8fafc;
+}
+
+.duration-badge {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-muted);
 }
 
-.duration-badge {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.85rem;
+body.light-mode .duration-badge {
+    background: rgba(0, 0, 0, 0.05);
 }

@@ -2,8 +2,9 @@
 
 .users-table-container {
     background: var(--card-bg);
-    border-radius: 16px;
+    border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
     overflow: hidden;
 }
 
@@ -14,54 +15,72 @@
 
 .users-table th,
 .users-table td {
-    padding: 15px 20px;
+    padding: 18px 24px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
 
 .users-table th {
-    background: rgba(0, 0, 0, 0.2);
-    font-weight: 600;
-    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.02);
+    font-weight: 700;
+    color: var(--text-dim);
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+body.light-mode .users-table th {
+    background: #f8fafc;
+}
+
+.users-table tr:last-child td {
+    border-bottom: none;
 }
 
 .users-table tr:hover {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.03);
+    transition: var(--transition-fast);
+}
+
+body.light-mode .users-table tr:hover {
+    background: #f1f5f9;
 }
 
 .user-role-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    text-transform: capitalize;
-    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .role-admin {
-    background: rgba(168, 85, 247, 0.2);
+    background: rgba(168, 85, 247, 0.1);
     color: #c084fc;
+    border: 1px solid rgba(168, 85, 247, 0.2);
 }
 
-/* Purple */
 .role-cook {
-    background: rgba(249, 115, 22, 0.2);
+    background: rgba(251, 146, 60, 0.1);
     color: #fb923c;
+    border: 1px solid rgba(251, 146, 60, 0.2);
 }
 
-/* Orange */
 .role-waiter {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+    border: 1px solid rgba(14, 165, 233, 0.2);
 }
-
-/* Blue */
 
 .add-user-form {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 25px;
-    border-radius: 16px;
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
     height: fit-content;
 }

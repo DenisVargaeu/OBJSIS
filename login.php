@@ -3,55 +3,49 @@
 require_once 'config/db.php';
 require_once 'includes/functions.php';
 
+session_start();
+
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pin = $_POST['pin'] ?? '';
 
     if (!empty($pin)) {
-        // Find user by PIN (in real app, compare hash)
-        // For MVP phase 1, we will fetch all users and verify hash in PHP loops or assuming direct match if not hashed yet?
-        // Let's assume we implement hash verification.
 
-        // Fetch all users to find the matching PIN (inefficient but safe for hashed PINs without storing plain text search)
-        // Or if we trust the hash is unique enough or we use a username to narrow it down? 
-        // The requirement says "PIN login". Usually you enter a PIN.
+        try {
+            // Jednoduchý query bez roles tabuľky
+            $stmt = $pdo->query("SELECT * FROM users");
+            $users = $stmt->fetchAll();
 
-        // For this MVP, let's Fetch user where... wait, we can't query by hash. 
-        // We might need an ID + PIN, or just PIN. If just PIN, we need to hope it's unique or iterate.
-        // Let's assume for MVP we fetch all users and check verifyPin.
+            $user_found = false;
 
-        // Fetch user with Role details
-        $stmt = $pdo->query("SELECT u.*, r.name as role_name, r.permissions FROM users u LEFT JOIN roles r ON u.role_id = r.id");
-        $users = $stmt->fetchAll();
+            foreach ($users as $user) {
+                if (verifyPin($pin, $user['pin_hash'])) {
 
-        $user_found = false;
-        foreach ($users as $user) {
-            // For MVP compatibility, if migration hasn't run or role_id is null, fall back to old role column
-            // But we enforced migration.
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_name'] = $user['name'];
 
-            if (verifyPin($pin, $user['pin_hash'])) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_name'] = $user['name'];
+                    // Použijeme priamo role z tabuľky users
+                    $_SESSION['user_role'] = $user['role'];
 
-                // Use new role name, fallback to old if something weird happened
-                $role_name = $user['role_name'] ?? $user['role'];
-                $_SESSION['user_role'] = $role_name;
+                    // Zatiaľ bez permissions systému
+                    $_SESSION['permissions'] = [];
 
-                // Decode permissions
-                $permissions = isset($user['permissions']) ? json_decode($user['permissions'], true) : [];
-                $_SESSION['permissions'] = $permissions;
-
-                $user_found = true;
-                break;
+                    $user_found = true;
+                    break;
+                }
             }
+
+            if ($user_found) {
+                redirect('admin/dashboard.php');
+            } else {
+                $error = "Invalid PIN";
+            }
+
+        } catch (PDOException $e) {
+            die("DB ERROR: " . $e->getMessage());
         }
 
-        if ($user_found) {
-            redirect('admin/dashboard.php');
-        } else {
-            $error = "Invalid PIN";
-        }
     } else {
         $error = "Please enter a PIN";
     }
@@ -84,7 +78,7 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
                 <p style="color: var(--text-muted);">Please enter your PIN to continue</p>
             </div>
 
-            <?php if (isset($error)): ?>
+            <?php if (!empty($error)): ?>
                 <div class="alert alert-error" style="justify-content: center;">
                     <?= htmlspecialchars($error) ?>
                 </div>
@@ -130,7 +124,6 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
         style="position:fixed; top:20px; right:20px; width:40px; height:40px; background:var(--card-bg-glass); border:1px solid var(--border-color); border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; z-index:2000; backdrop-filter:blur(5px); color:var(--text-muted); box-shadow:var(--shadow-sm);">
         <i class="fas fa-adjust"></i>
     </div>
-    <script src="assets/js/theme.js"></script>
 
     <script>
         const pinInput = document.getElementById('pinInput');
@@ -145,7 +138,6 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
             pinInput.value = '';
         }
 
-        // Keyboard Support
         document.addEventListener('keydown', (e) => {
             if (e.key >= '0' && e.key <= '9') {
                 appendPin(e.key);
@@ -153,7 +145,9 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
                 pinInput.value = pinInput.value.slice(0, -1);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                if (pinInput.value.length > 0) document.getElementById('loginForm').submit();
+                if (pinInput.value.length > 0) {
+                    document.getElementById('loginForm').submit();
+                }
             }
         });
     </script>

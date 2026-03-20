@@ -37,6 +37,15 @@ function isActive($page, $current)
                     </li>
                 <?php endif; ?>
 
+                <?php if (hasPermission('kitchen.php')): ?>
+                    <li class="nav-item">
+                        <a href="kitchen.php" class="nav-link <?= isActive('kitchen.php', $current_page) ?>"
+                            title="Kitchen Display">
+                            <i class="fas fa-hotdog"></i> <span>Kitchen Display</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
                 <?php if (hasPermission('orders.php')): ?>
                     <li class="nav-item">
                         <a href="orders.php" class="nav-link <?= isActive('orders.php', $current_page) ?>"
@@ -140,6 +149,14 @@ function isActive($page, $current)
                     </li>
                 <?php endif; ?>
 
+                <?php if (hasPermission('reports.php')): ?>
+                    <li class="nav-item">
+                        <a href="reports.php" class="nav-link <?= isActive('reports.php', $current_page) ?>" title="Business Reports">
+                            <i class="fas fa-file-invoice-dollar"></i> <span>Reports</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
                 <?php if (hasPermission('history.php')): ?>
                     <li class="nav-item">
                         <a href="history.php" class="nav-link <?= isActive('history.php', $current_page) ?>"
@@ -171,14 +188,15 @@ function isActive($page, $current)
     </div>
 
     <div class="user-profile">
-        <div class="user-info">
+        <a href="profile.php" class="user-info" style="text-decoration: none; color: inherit; display: block; flex: 1;">
             <div class="user-name">
                 <?= htmlspecialchars($user_name) ?>
             </div>
-            <div class="user-role">
+            <div class="user-role" style="display: flex; align-items: center; gap: 5px;">
                 <?= htmlspecialchars($user_role) ?>
+                <i class="fas fa-chevron-right" style="font-size: 0.6rem; opacity: 0.5;"></i>
             </div>
-        </div>
+        </a>
         <div class="user-actions">
             <a href="../logout.php" title="Logout">
                 <i class="fas fa-sign-out-alt"></i>
@@ -232,5 +250,35 @@ function isActive($page, $current)
             group.classList.add('collapsed');
         }
     });
+
+    // Real-time Sidebar Badges
+    async function updateSidebarBadges() {
+        try {
+            const res = await fetch('../api/dashboard_fetch.php');
+            const data = await res.json();
+            if (data.success) {
+                const count = data.stats.active;
+                const links = document.querySelectorAll('.nav-link');
+                links.forEach(link => {
+                    if (link.href.includes('dashboard.php') || link.href.includes('orders.php')) {
+                        let badge = link.querySelector('.nav-badge');
+                        if (count > 0) {
+                            if (!badge) {
+                                badge = document.createElement('span');
+                                badge.className = 'nav-badge';
+                                badge.style.cssText = 'background: var(--primary-color); color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; margin-left: auto;';
+                                link.appendChild(badge);
+                            }
+                            badge.innerText = count;
+                        } else if (badge) {
+                            badge.remove();
+                        }
+                    }
+                });
+            }
+        } catch (e) {}
+    }
+    updateSidebarBadges();
+    setInterval(updateSidebarBadges, 15000);
 </script>
 <script src="../assets/js/theme.js"></script>

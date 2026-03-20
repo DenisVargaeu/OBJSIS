@@ -51,117 +51,79 @@ $page_title = "Statistics";
         <?php include '../includes/sidebar.php'; ?>
 
         <main class="main-content">
-            <main class="main-content">
-                <style>
-                    @media print {
+            <header class="page-header">
+                <div class="page-title-group">
+                    <h2>Business Overview</h2>
+                    <div class="date-subtitle"><?= date('F j, Y') ?></div>
+                </div>
+                <div class="print-btn-container no-print">
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        <i class="fas fa-print" style="margin-right:8px;"></i> Print Report
+                    </button>
+                </div>
+            </header>
 
-                        .sidebar,
-                        .print-btn-container {
-                            display: none !important;
-                        }
-
-                        .main-content {
-                            margin: 0;
-                            padding: 0;
-                            width: 100%;
-                        }
-
-                        .app-container {
-                            flex-direction: column;
-                        }
-
-                        body {
-                            background: #fff;
-                            color: #000;
-                        }
-
-                        .stat-card {
-                            border: 1px solid #ccc;
-                            box-shadow: none;
-                            color: #000;
-                            background: #fff;
-                        }
-
-                        .stat-value {
-                            color: #000;
-                        }
-
-                        .progress-bar-bg {
-                            background: #eee;
-                        }
-
-                        .progress-bar-fill {
-                            background: #666;
-                        }
-                    }
-                </style>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                    <h2 style="margin:0;">Business Overview</h2>
-                    <div class="print-btn-container">
-                        <button onclick="window.print()" class="btn btn-secondary">
-                            <i class="fas fa-print" style="margin-right:8px;"></i> Print Report
-                        </button>
+            <div class="stats-grid">
+                <!-- Daily Revenue -->
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                        <i class="fas fa-euro-sign"></i>
+                    </div>
+                    <div class="stat-card-content">
+                        <div class="stat-label">Daily Revenue</div>
+                        <div class="stat-value"><?= number_format($daily_revenue, 2) ?> €</div>
+                        <div class="stat-sub"><?= date('M d, Y') ?></div>
                     </div>
                 </div>
 
-                <div class="stats-grid">
-                    <!-- Daily Revenue -->
-                    <div class="stat-card">
-                        <div class="stat-title">Daily Revenue</div>
-                        <div class="stat-value">
-                            <?= number_format($daily_revenue, 2) ?> €
-                        </div>
-                        <div class="stat-sub">
-                            <?= date('M d, Y') ?>
-                        </div>
+                <!-- Weekly Revenue -->
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                        <i class="fas fa-calendar-week"></i>
                     </div>
-
-                    <!-- Weekly Revenue -->
-                    <div class="stat-card">
-                        <div class="stat-title">Weekly Revenue</div>
-                        <div class="stat-value">
-                            <?= number_format($weekly_revenue, 2) ?> €
-                        </div>
+                    <div class="stat-card-content">
+                        <div class="stat-label">Weekly Revenue</div>
+                        <div class="stat-value"><?= number_format($weekly_revenue, 2) ?> €</div>
                         <div class="stat-sub">Last 7 Days</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Top Items -->
-                <div class="stat-card" style="max-width: 600px;">
-                    <div class="stat-title" style="margin-bottom: 20px;">Top Selling Items</div>
-                    <?php if (empty($top_items)): ?>
-                        <p style="color:var(--text-muted);">No sales data yet.</p>
-                    <?php else: ?>
-                        <table class="top-items-table">
-                            <?php
-                            $max_sales = $top_items[0]['sold_count'];
-                            foreach ($top_items as $item):
-                                $percent = ($item['sold_count'] / $max_sales) * 100;
-                                ?>
-                                <tr>
-                                    <td>
-                                        <div style="font-weight:bold;">
-                                            <?= htmlspecialchars($item['name']) ?>
-                                        </div>
-                                        <div class="progress-bar-bg">
-                                            <div class="progress-bar-fill" style="width: <?= $percent ?>%"></div>
-                                        </div>
-                                    </td>
-                                    <td style="text-align:right; white-space:nowrap;">
-                                        <div style="font-weight:bold;">
-                                            <?= $item['sold_count'] ?> sold
-                                        </div>
-                                        <div style="font-size:0.8rem; color:var(--text-muted);">
-                                            <?= number_format($item['revenue'], 2) ?> €
-                                        </div>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </table>
-                    <?php endif; ?>
-                </div>
-
-            </main>
+            <!-- Top Items -->
+            <div class="glass-card" style="max-width: 800px;">
+                <h3 style="margin-bottom: 24px; font-size: 1.25rem; font-weight: 700;">Top Selling Items</h3>
+                <?php if (empty($top_items)): ?>
+                    <p style="color:var(--text-muted);">No sales data yet.</p>
+                <?php else: ?>
+                    <table class="top-items-table">
+                        <?php
+                        $max_sales = $top_items[0]['sold_count'];
+                        foreach ($top_items as $item):
+                            $percent = ($item['sold_count'] / $max_sales) * 100;
+                            ?>
+                            <tr>
+                                <td>
+                                    <div style="font-weight:600; margin-bottom: 8px;">
+                                        <?= htmlspecialchars($item['name']) ?>
+                                    </div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: <?= $percent ?>%"></div>
+                                    </div>
+                                </td>
+                                <td style="text-align:right; white-space:nowrap;">
+                                    <div style="font-weight:700; color: var(--primary-color);">
+                                        <?= $item['sold_count'] ?> sold
+                                    </div>
+                                    <div style="font-size:0.85rem; color:var(--text-muted); margin-top: 4px;">
+                                        <?= number_format($item['revenue'], 2) ?> €
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
+                <?php endif; ?>
+            </div>
+        </main>
     </div>
 </body>
 

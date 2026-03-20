@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
     foreach ($settings as $key => $value) {
-        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES (?, ?) ON DUPLIC KEY UPDATE setting_value = ?");
         $stmt->execute([$key, $value, $value]);
     }
 
@@ -65,6 +65,8 @@ $bg_color_kiosk = getSetting('bg_color_kiosk', '#0f172a');
 $bg_type_login = getSetting('bg_type_login', 'gradient');
 $bg_image_login = getSetting('bg_image_login', '');
 $bg_color_login = getSetting('bg_color_login', '#0f172a');
+
+$page_title = "System Settings";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -83,8 +85,13 @@ $bg_color_login = getSetting('bg_color_login', '#0f172a');
         <?php include '../includes/sidebar.php'; ?>
 
         <!-- Main Content -->
-        <div class="main-content">
-            <h1 style="margin-bottom: 2rem;">System Settings</h1>
+        <main class="main-content">
+            <header class="page-header">
+                <div class="page-title-group">
+                    <h2>System Settings</h2>
+                    <div class="date-subtitle">Configure global parameters and appearance</div>
+                </div>
+            </header>
 
             <?php
             $flash = getFlashMessage();
@@ -94,30 +101,30 @@ $bg_color_login = getSetting('bg_color_login', '#0f172a');
                 </div>
             <?php endif; ?>
 
-            <div class="card" style="max-width: 600px;">
+            <div class="glass-card" style="max-width: 800px;">
                 <form method="POST">
-                    <h3><i class="fas fa-building"></i> General</h3>
+                    <h3 style="margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--primary-color);"><i class="fas fa-building"></i> General</h3>
                     <div class="form-group">
                         <label for="restaurant_name">Restaurant Name</label>
                         <input type="text" id="restaurant_name" name="restaurant_name"
                             value="<?= htmlspecialchars($restaurant_name) ?>" required>
                     </div>
 
-                    <h3 style="margin-top: 2rem;"><i class="fas fa-palette"></i> Appearance</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <h3 style="margin-top: 2.5rem; margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--primary-color);"><i class="fas fa-palette"></i> Base Appearance</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                         <div class="form-group">
                             <label for="primary_color">Primary Color</label>
                             <input type="color" id="primary_color" name="primary_color"
-                                value="<?= htmlspecialchars($primary_color) ?>" style="height: 45px; padding: 5px;">
+                                value="<?= htmlspecialchars($primary_color) ?>" style="height: 50px; padding: 4px; border-radius: 8px;">
                         </div>
                         <div class="form-group">
                             <label for="primary_hover">Hover Color</label>
                             <input type="color" id="primary_hover" name="primary_hover"
-                                value="<?= htmlspecialchars($primary_hover) ?>" style="height: 45px; padding: 5px;">
+                                value="<?= htmlspecialchars($primary_hover) ?>" style="height: 50px; padding: 4px; border-radius: 8px;">
                         </div>
                     </div>
 
-                    <h3 style="margin-top: 2rem;"><i class="fas fa-image"></i> Kiosk Appearance</h3>
+                    <h3 style="margin-top: 2.5rem; margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--primary-color);"><i class="fas fa-image"></i> Kiosk Appearance</h3>
                     <div class="form-group">
                         <label for="bg_type_kiosk">Background Type</label>
                         <select id="bg_type_kiosk" name="bg_type_kiosk">
@@ -136,7 +143,7 @@ $bg_color_login = getSetting('bg_color_login', '#0f172a');
                         style="<?= $bg_type_kiosk === 'image' ? 'display:none;' : '' ?>">
                         <label for="bg_color_kiosk">Background Color</label>
                         <input type="color" id="bg_color_kiosk" name="bg_color_kiosk"
-                            value="<?= htmlspecialchars($bg_color_kiosk) ?>" style="height: 45px; padding: 5px;">
+                            value="<?= htmlspecialchars($bg_color_kiosk) ?>" style="height: 50px; padding: 4px; border-radius: 8px;">
                     </div>
 
                     <div class="form-group" style="margin-top: 15px;">
@@ -147,11 +154,11 @@ $bg_color_login = getSetting('bg_color_login', '#0f172a');
                             <option value="0" <?= getSetting('show_menu_photos', '1') === '0' ? 'selected' : '' ?>>No, Text
                                 Only</option>
                         </select>
-                        <small style="color:var(--text-muted); display:block; margin-top:5px;">If disabled, menu items
+                        <small style="color:var(--text-muted); display:block; margin-top:8px; line-height: 1.4;">If disabled, menu items
                             will be displayed as compact cards without images.</small>
                     </div>
 
-                    <h3 style="margin-top: 2rem;"><i class="fas fa-sign-in-alt"></i> Login Page Appearance</h3>
+                    <h3 style="margin-top: 2.5rem; margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--primary-color);"><i class="fas fa-sign-in-alt"></i> Login Page Appearance</h3>
                     <div class="form-group">
                         <label for="bg_type_login">Background Type</label>
                         <select id="bg_type_login" name="bg_type_login">
@@ -171,7 +178,7 @@ $bg_color_login = getSetting('bg_color_login', '#0f172a');
                         style="<?= $bg_type_login !== 'color' ? 'display:none;' : '' ?>">
                         <label for="bg_color_login">Background Color</label>
                         <input type="color" id="bg_color_login" name="bg_color_login"
-                            value="<?= htmlspecialchars($bg_color_login) ?>" style="height: 45px; padding: 5px;">
+                            value="<?= htmlspecialchars($bg_color_login) ?>" style="height: 50px; padding: 4px; border-radius: 8px;">
                     </div>
 
                     <script>
@@ -185,19 +192,19 @@ $bg_color_login = getSetting('bg_color_login', '#0f172a');
                         });
                     </script>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 1rem;">
-                        <button type="submit" class="btn">
-                            <i class="fas fa-save" style="margin-right: 8px;"></i> Save Changes
+                    <div style="display: flex; gap: 15px; margin-top: 2.5rem; flex-wrap: wrap;">
+                        <button type="submit" class="btn" style="min-width: 160px;">
+                            <i class="fas fa-save"></i> Save Changes
                         </button>
-                        <button type="submit" name="reset_customization" class="btn"
-                            style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border-color);"
+                        <button type="submit" name="reset_customization" class="btn btn-secondary"
+                            style="min-width: 160px;"
                             onclick="return confirm('Reset all colors and backgrounds to defaults?')">
-                            <i class="fas fa-undo" style="margin-right: 8px;"></i> Reset Defaults
+                            <i class="fas fa-undo"></i> Reset Defaults
                         </button>
                     </div>
                 </form>
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- Theme Toggle -->

@@ -72,6 +72,8 @@ $summary = $revenue_stmt->fetch();
 // Fetch all tables for filter
 $tables_stmt = $pdo->query("SELECT * FROM tables ORDER BY id");
 $tables = $tables_stmt->fetchAll();
+
+$page_title = "Order History";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -82,96 +84,6 @@ $tables = $tables_stmt->fetchAll();
     <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <?= getCustomStyles() ?>
-    <style>
-        .history-filters {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            align-items: flex-end;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .filter-group label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .summary-card {
-            background: var(--card-bg);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .summary-card-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .summary-card-label {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 5px;
-        }
-
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .history-table th {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 12px;
-            text-align: left;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .history-table td {
-            padding: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .history-table tr:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .status-badge-small {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-paid {
-            background: rgba(34, 197, 94, 0.2);
-            color: var(--success);
-        }
-
-        .status-cancelled {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
-    </style>
 </head>
 
 <body>
@@ -179,10 +91,15 @@ $tables = $tables_stmt->fetchAll();
         <?php include '../includes/sidebar.php'; ?>
 
         <main class="main-content">
-            <h2 style="margin-bottom: 20px;">Order History</h2>
+            <header class="page-header">
+                <div class="page-title-group">
+                    <h2>Order History</h2>
+                    <div class="date-subtitle">Review past performance and detailed logs</div>
+                </div>
+            </header>
 
             <!-- Filters -->
-            <form class="history-filters" method="GET">
+            <form class="admin-filters" method="GET">
                 <div class="filter-group">
                     <label>From Date</label>
                     <input type="date" name="date_from" value="<?= htmlspecialchars($date_from) ?>">
@@ -194,10 +111,9 @@ $tables = $tables_stmt->fetchAll();
                 <div class="filter-group">
                     <label>Status</label>
                     <select name="status">
-                        <option value="all" <?= $status_filter === 'all' ? 'selected' : '' ?>>All</option>
+                        <option value="all" <?= $status_filter === 'all' ? 'selected' : '' ?>>All Statuses</option>
                         <option value="paid" <?= $status_filter === 'paid' ? 'selected' : '' ?>>Paid</option>
-                        <option value="cancelled" <?= $status_filter === 'cancelled' ? 'selected' : '' ?>>Cancelled
-                        </option>
+                        <option value="cancelled" <?= $status_filter === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
                     </select>
                 </div>
                 <div class="filter-group">
@@ -211,40 +127,51 @@ $tables = $tables_stmt->fetchAll();
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <button type="submit" class="btn">Apply Filters</button>
+                <button type="submit" class="btn">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
             </form>
 
             <!-- Summary Cards -->
-            <div class="summary-cards">
-                <div class="summary-card">
-                    <div class="summary-card-value">
-                        <?= $summary['order_count'] ?? 0 ?>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                        <i class="fas fa-receipt"></i>
                     </div>
-                    <div class="summary-card-label">Total Orders</div>
+                    <div class="stat-card-content">
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value"><?= $summary['order_count'] ?? 0 ?></div>
+                    </div>
                 </div>
-                <div class="summary-card">
-                    <div class="summary-card-value">
-                        <?= number_format($summary['total_revenue'] ?? 0, 2) ?> €
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                        <i class="fas fa-euro-sign"></i>
                     </div>
-                    <div class="summary-card-label">Total Revenue</div>
+                    <div class="stat-card-content">
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value"><?= number_format($summary['total_revenue'] ?? 0, 2) ?> €</div>
+                    </div>
                 </div>
-                <div class="summary-card">
-                    <div class="summary-card-value">
-                        <?= number_format($summary['total_discounts'] ?? 0, 2) ?> €
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(249, 115, 22, 0.1); color: var(--primary-color);">
+                        <i class="fas fa-tag"></i>
                     </div>
-                    <div class="summary-card-label">Total Discounts</div>
+                    <div class="stat-card-content">
+                        <div class="stat-label">Total Discounts</div>
+                        <div class="stat-value"><?= number_format($summary['total_discounts'] ?? 0, 2) ?> €</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Orders Table -->
-            <div class="card" style="overflow-x: auto;">
+            <div class="admin-table-container">
                 <?php if (empty($orders)): ?>
-                    <p style="text-align:center; padding:40px; color:var(--text-muted);">
+                    <div style="text-align:center; padding:60px; color:var(--text-muted);">
                         <i class="fas fa-inbox" style="font-size:3rem; margin-bottom:15px; display:block; opacity:0.3;"></i>
                         No orders found for the selected filters.
-                    </p>
+                    </div>
                 <?php else: ?>
-                    <table class="history-table">
+                    <table class="admin-table">
                         <thead>
                             <tr>
                                 <th>Order ID</th>
@@ -255,7 +182,7 @@ $tables = $tables_stmt->fetchAll();
                                 <th>Discount</th>
                                 <th>Total</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th style="text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -263,35 +190,37 @@ $tables = $tables_stmt->fetchAll();
                                 $subtotal = $order['total_price'] + $order['discount_amount'];
                                 ?>
                                 <tr>
-                                    <td style="font-weight:600;">#
-                                        <?= $order['id'] ?>
+                                    <td style="font-weight:700; color: var(--primary-color);">#<?= $order['id'] ?></td>
+                                    <td>
+                                        <div style="font-weight:600;"><?= date('M d, Y', strtotime($order['created_at'])) ?></div>
+                                        <div style="font-size:0.8rem; color: var(--text-muted);"><?= date('H:i', strtotime($order['created_at'])) ?></div>
                                     </td>
                                     <td>
-                                        <?= date('M d, Y H:i', strtotime($order['created_at'])) ?>
+                                        <span style="font-weight:600;">Table <?= $order['table_number'] ?></span>
                                     </td>
-                                    <td>Table
-                                        <?= $order['table_number'] ?>
+                                    <td style="max-width:250px;">
+                                        <div style="font-size:0.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="<?= htmlspecialchars($order['items_summary']) ?>">
+                                            <?= htmlspecialchars($order['items_summary']) ?>
+                                        </div>
                                     </td>
-                                    <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                                        <?= htmlspecialchars($order['items_summary']) ?>
-                                    </td>
-                                    <td>
-                                        <?= number_format($subtotal, 2) ?> €
-                                    </td>
+                                    <td><?= number_format($subtotal, 2) ?> €</td>
                                     <td style="color:var(--success);">
-                                        <?= $order['discount_amount'] > 0 ? '-' . number_format($order['discount_amount'], 2) . ' €' : '-' ?>
+                                        <?= $order['discount_amount'] > 0 ? '-' . number_format($order['discount_amount'], 2) . ' €' : '—' ?>
                                     </td>
-                                    <td style="font-weight:700;">
-                                        <?= number_format($order['total_price'], 2) ?> €
-                                    </td>
+                                    <td style="font-weight:800; color: var(--text-main);"><?= number_format($order['total_price'], 2) ?> €</td>
                                     <td>
-                                        <span class="status-badge-small status-<?= $order['status'] ?>">
-                                            <?= $order['status'] ?>
-                                        </span>
+                                        <?php if ($order['status'] === 'paid'): ?>
+                                            <span class="status-badge" style="background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.7rem; padding: 4px 10px;">
+                                                <i class="fas fa-check-circle"></i> Paid
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="status-badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 0.7rem; padding: 4px 10px;">
+                                                <i class="fas fa-times-circle"></i> Cancelled
+                                            </span>
+                                        <?php endif; ?>
                                     </td>
-                                    <td>
-                                        <a href="receipt.php?order_id=<?= $order['id'] ?>" target="_blank"
-                                            class="btn btn-secondary" style="padding:6px 12px; font-size:0.85rem;">
+                                    <td style="text-align: right;">
+                                        <a href="receipt.php?order_id=<?= $order['id'] ?>" target="_blank" class="btn btn-secondary" style="padding:8px 12px; font-size:0.8rem; border-radius: 8px;">
                                             <i class="fas fa-receipt"></i> Receipt
                                         </a>
                                     </td>
