@@ -25,11 +25,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_name'] = $user['name'];
 
-                    // Použijeme priamo role z tabuľky users
-                    $_SESSION['user_role'] = $user['role'];
+                    // Get Role and Permissions
+                    $stmt_role = $pdo->prepare("
+                        SELECT r.name as role_name, r.id as role_id, p.name as permission_name 
+                        FROM roles r
+                        LEFT JOIN role_permissions rp ON r.id = rp.role_id
+                        LEFT JOIN permissions p ON rp.permission_id = p.id
+                        WHERE r.id = ?
+                    ");
+                    $stmt_role->execute([$user['role_id']]);
+                    $role_data = $stmt_role->fetchAll();
 
-                    // Zatiaľ bez permissions systému
-                    $_SESSION['permissions'] = [];
+                    if ($role_data) {
+                        $_SESSION['user_role'] = $role_data[0]['role_name'];
+                        $_SESSION['role_id'] = $role_data[0]['role_id'];
+                        $_SESSION['permissions'] = array_filter(array_column($role_data, 'permission_name'));
+                    } else {
+                        // Fallback to old system if role_id not set correctly
+                        $_SESSION['user_role'] = $user['role'];
+                        $_SESSION['permissions'] = [];
+                    }
 
                     $user_found = true;
                     break;

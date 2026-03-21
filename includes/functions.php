@@ -18,14 +18,13 @@ function requireLogin()
 }
 
 /**
- * Check if user has permission for a specific page
- * @param string $page e.g., 'users.php'
+ * Check if user has permission for a specific action or page
+ * @param string $permission e.g., 'manage_users', 'users.php'
  * @return bool
  */
-function hasPermission($page)
+function hasPermission($permission)
 {
-    // Admin role usually has all access, but better to rely on permissions array.
-    // However, if we want a hard override:
+    // Admin role usually has all access
     if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
         return true;
     }
@@ -34,12 +33,37 @@ function hasPermission($page)
         return false;
     }
 
-    // Normalize page name (remove path)
-    $page = basename($page);
-
     // If permissions is an array, check it
-    if (is_array($_SESSION['permissions']) && in_array($page, $_SESSION['permissions'])) {
-        return true;
+    if (is_array($_SESSION['permissions'])) {
+        // Direct permission check
+        if (in_array($permission, $_SESSION['permissions'])) {
+            return true;
+        }
+
+        // Mapping for common admin filenames to semantic permissions
+        $mapping = [
+            'dashboard.php'    => 'view_dashboard',
+            'kitchen.php'      => 'view_orders',
+            'orders.php'       => 'view_orders',
+            'tables.php'       => 'view_orders',
+            'menu.php'         => 'view_menu',
+            'categories.php'   => 'view_menu',
+            'inventory.php'    => 'view_inventory',
+            'coupons.php'      => 'manage_menu',
+            'shifts.php'       => 'view_dashboard',
+            'users.php'        => 'manage_users',
+            'roles.php'        => 'manage_roles',
+            'stats.php'        => 'view_reports',
+            'reports.php'      => 'view_reports',
+            'history.php'      => 'view_orders',
+            'updates.php'      => 'manage_settings',
+            'settings.php'     => 'manage_settings'
+        ];
+
+        $basename = basename($permission);
+        if (isset($mapping[$basename]) && in_array($mapping[$basename], $_SESSION['permissions'])) {
+            return true;
+        }
     }
 
     return false;
