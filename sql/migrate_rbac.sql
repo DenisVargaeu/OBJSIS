@@ -39,7 +39,8 @@ INSERT IGNORE INTO `permissions` (`name`, `description`) VALUES
 ('manage_inventory', 'Ability to update stock and logs'),
 ('view_reports', 'Ability to view sales and performance reports'),
 ('manage_settings', 'Ability to change system settings'),
-('manage_roles', 'Ability to manage roles and their permissions');
+('manage_roles', 'Ability to manage roles and their permissions'),
+('manage_system', 'Global system management permission');
 
 -- 5. Seed Roles
 INSERT IGNORE INTO `roles` (`name`, `display_name`) VALUES
