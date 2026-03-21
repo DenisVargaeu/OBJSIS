@@ -1,0 +1,62 @@
+# OBJSIS V2 - Git Ignore File
+
+# Database Configuration (contains credentials)
+config/db.php
+
+# Uploaded Images
+uploads/
+assets/images/uploads/
+
+# Temporary Files
+*.tmp
+*.temp
+*~
+
+# Migration Scripts (auto-generated)
+update_*.php
+fix_*.php
+setup_db.php
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Session Files
+sessions/
+
+# Backup Files
+*.bak
+*.backup
+backup/
+
+# Environment Files
+.env
+.env.local
+
+# Composer (if used later)
+/vendor/
+
+# Node modules (if used later)
+node_modules/
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Database Dumps
+*.sql.gz
+*.sql.zip
+database_backup/
