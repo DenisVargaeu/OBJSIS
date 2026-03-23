@@ -45,6 +45,7 @@ function hasPermission($permission)
             'dashboard.php'    => 'view_dashboard',
             'kitchen.php'      => 'view_orders',
             'orders.php'       => 'view_orders',
+            'new_order.php'    => 'view_orders',
             'tables.php'       => 'view_orders',
             'menu.php'         => 'view_menu',
             'categories.php'   => 'view_menu',

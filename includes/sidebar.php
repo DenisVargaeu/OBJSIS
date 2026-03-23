@@ -62,6 +62,15 @@ function isActive($page, $current)
                         </a>
                     </li>
                 <?php endif; ?>
+
+                <?php if (hasPermission('new_order.php')): ?>
+                    <li class="nav-item">
+                        <a href="new_order.php" class="nav-link <?= isActive('new_order.php', $current_page) ?>"
+                            title="New Order">
+                            <i class="fas fa-concierge-bell"></i> <span>New Order</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
             </ul>
         </div>
 
