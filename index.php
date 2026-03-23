@@ -66,6 +66,7 @@ try {
 }
 
 $page_title = $table_number ? "Table $table_number" : "Welcome";
+$restaurant_name = getSetting('restaurant_name', 'OBJSIS');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -73,228 +74,708 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars(getSetting('restaurant_name', 'OBJSIS')) ?> Menu</title>
+    <title><?= htmlspecialchars($restaurant_name) ?> Menu</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/kiosk_improvements.css">
-    <script src="assets/js/theme.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <?= getCustomStyles() ?>
     <style>
-        .tables-grid-customer {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 20px;
-            padding: 40px;
-            max-width: 1200px;
-            margin: 0 auto;
+        /* ===== FULL PAGE RESET ===== */
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0; padding: 0;
+            background: var(--bg-color, #0a0a1a);
+            color: var(--text-main, #e2e8f0);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .table-card-customer {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            height: 150px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s;
-            text-decoration: none;
-            color: #fff;
-            position: relative;
+        /* ===== ANIMATED BACKGROUND ===== */
+        .page-bg {
+            position: fixed; inset: 0; z-index: 0;
+            background: var(--bg-color, #0a0a1a);
             overflow: hidden;
         }
-
-        .status-free {
-            border-color: var(--success);
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
-        }
-
-        .status-free:hover {
-            transform: translateY(-5px);
-            background: rgba(34, 197, 94, 0.1);
-        }
-
-        .status-occupied {
-            border-color: var(--danger);
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .status-occupied::after {
-            content: 'OCCUPIED';
+        .page-bg::before {
+            content: '';
             position: absolute;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: var(--danger);
-            bottom: 10px;
+            width: 600px; height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary-color, #f97316) 0%, transparent 70%);
+            opacity: 0.06;
+            top: -200px; right: -200px;
+            animation: floatOrb1 20s ease-in-out infinite;
+        }
+        .page-bg::after {
+            content: '';
+            position: absolute;
+            width: 500px; height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+            opacity: 0.04;
+            bottom: -150px; left: -150px;
+            animation: floatOrb2 25s ease-in-out infinite;
+        }
+        @keyframes floatOrb1 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-80px, 60px); }
+        }
+        @keyframes floatOrb2 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(60px, -80px); }
         }
 
-        .status-reserved {
-            border-color: var(--warning);
-            opacity: 0.7;
+        /* ===== MAIN WRAPPER ===== */
+        .page-content {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        /* ===== LANDING: TABLE SELECTION ===== */
+        .landing-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        .landing-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .landing-header .subtitle {
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--primary-color, #f97316);
+            margin-bottom: 12px;
+        }
+        .landing-header h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            margin: 0 0 16px 0;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+        }
+        .landing-header h1 .restaurant-name {
+            display: block;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-color, #f97316) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .landing-header .description {
+            font-size: 1.15rem;
+            color: var(--text-muted, #94a3b8);
+            font-weight: 400;
+            max-width: 400px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Table Grid */
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 24px;
+            max-width: 1100px;
+            width: 100%;
+            padding: 0 20px;
+        }
+        .table-tile {
+            position: relative;
+            height: 180px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #fff;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .table-tile::before {
+            content: '';
+            position: absolute; inset: 0;
+            border-radius: 20px;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            transition: all 0.35s ease;
+        }
+        .table-tile > * { position: relative; z-index: 1; }
+        .table-tile .table-icon {
+            font-size: 2.2rem;
+            margin-bottom: 14px;
+            transition: transform 0.35s ease;
+        }
+        .table-tile .table-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .table-tile .table-cap {
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* Free */
+        .table-tile.tile-free::before { border-color: rgba(34, 197, 94, 0.2); }
+        .table-tile.tile-free .table-icon { color: #22c55e; }
+        .table-tile.tile-free:hover {
+            transform: translateY(-6px);
+        }
+        .table-tile.tile-free:hover::before {
+            border-color: rgba(34, 197, 94, 0.5);
+            background: rgba(34, 197, 94, 0.06);
+            box-shadow: 0 20px 50px rgba(34, 197, 94, 0.15);
+        }
+        .table-tile.tile-free:hover .table-icon { transform: scale(1.15); }
+
+        /* Occupied */
+        .table-tile.tile-occupied {
             cursor: not-allowed;
+            opacity: 0.45;
+            filter: grayscale(0.4);
+        }
+        .table-tile.tile-occupied::before { border-color: rgba(239, 68, 68, 0.15); }
+        .table-tile.tile-occupied .table-icon { color: #ef4444; }
+        .table-tile.tile-occupied .table-status-tag {
+            position: absolute; bottom: 16px;
+            font-size: 0.7rem; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 3px 10px; border-radius: 20px;
+        }
+
+        /* Reserved */
+        .table-tile.tile-reserved {
+            cursor: not-allowed;
+            opacity: 0.45;
+        }
+        .table-tile.tile-reserved::before { border-color: rgba(245, 158, 11, 0.15); }
+        .table-tile.tile-reserved .table-icon { color: #f59e0b; }
+        .table-tile.tile-reserved .table-status-tag {
+            position: absolute; bottom: 16px;
+            font-size: 0.7rem; font-weight: 800;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 3px 10px; border-radius: 20px;
+        }
+
+        .landing-footer {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .landing-footer a {
+            color: var(--text-muted, #64748b);
+            font-size: 0.85rem;
+            text-decoration: none;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        .landing-footer a:hover { opacity: 1; }
+
+        /* ===== MENU VIEW ===== */
+        .menu-topbar {
+            position: sticky;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            background: rgba(10, 10, 26, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .topbar-brand {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--primary-color, #f97316);
+            white-space: nowrap;
+        }
+        .topbar-table-badge {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.06);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .topbar-table-badge i { color: var(--primary-color, #f97316); }
+        .topbar-search {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+        .topbar-search input {
+            width: 100%;
+            padding: 10px 16px 10px 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #fff;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+        .topbar-search input:focus {
+            outline: none;
+            border-color: var(--primary-color, #f97316);
+            background: rgba(255,255,255,0.08);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.15);
+        }
+        .topbar-search i {
+            position: absolute;
+            left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted, #64748b);
+            font-size: 0.9rem;
+        }
+        .topbar-actions {
+            display: flex; gap: 10px; align-items: center;
+        }
+        .topbar-btn {
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-muted, #94a3b8);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-weight: 800; font-size: 0.85rem;
+        }
+        .topbar-btn:hover {
+            background: var(--primary-color, #f97316);
+            color: #fff;
+            border-color: var(--primary-color, #f97316);
+            transform: scale(1.05);
+        }
+
+        /* Active order chips in topbar */
+        .topbar-orders {
+            display: flex; gap: 8px; align-items: center;
+        }
+        .topbar-order-chip {
+            background: rgba(249, 115, 22, 0.12);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            color: var(--primary-color, #f97316);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+        .topbar-order-chip:hover {
+            background: var(--primary-color, #f97316);
+            color: #fff;
+        }
+
+        /* Category pills row */
+        .category-bar {
+            display: flex;
+            gap: 10px;
+            padding: 16px 24px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+            background: rgba(10, 10, 26, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .category-bar::-webkit-scrollbar { display: none; }
+        .cat-pill {
+            flex-shrink: 0;
+            padding: 10px 22px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--text-muted, #94a3b8);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .cat-pill:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+        .cat-pill.active {
+            background: var(--primary-color, #f97316);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
+        }
+
+        /* Menu content area */
+        .menu-body {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 24px 140px 24px;
+        }
+        .category-section {
+            margin-bottom: 60px;
+            scroll-margin-top: 140px;
+        }
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 0 0 24px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .category-title::before {
+            content: '';
+            width: 4px; height: 28px;
+            border-radius: 4px;
+            background: var(--primary-color, #f97316);
+            flex-shrink: 0;
+        }
+
+        /* Food cards */
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 22px;
+        }
+        .food-card {
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.025);
+        }
+        .food-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255,255,255,0.12);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .food-card.sold-out {
+            filter: grayscale(1) brightness(0.5);
+            pointer-events: none;
+        }
+        .food-card .food-img {
+            height: 200px;
+            overflow: hidden;
+            background: #111;
+            position: relative;
+        }
+        .food-card .food-img img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .food-card:hover .food-img img {
+            transform: scale(1.06);
+        }
+        .food-card .food-img .placeholder-icon {
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            color: rgba(255,255,255,0.06);
+            font-size: 3rem;
+        }
+        .food-card .price-tag {
+            position: absolute;
+            top: 14px; right: 14px;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 1rem;
+            color: #fff;
+        }
+        .food-card .food-info {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .food-card .food-info h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+        }
+        .food-card .food-info .allergen-info {
+            font-size: 0.78rem;
+            color: var(--warning, #f59e0b);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .food-card .food-info .food-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted, #94a3b8);
+            line-height: 1.5;
+            margin: 0 0 16px 0;
+            flex: 1;
+        }
+        .food-card .add-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: var(--primary-color, #f97316);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .food-card .add-btn:hover {
+            filter: brightness(1.15);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+            transform: translateY(-1px);
+        }
+        .food-card .add-btn.disabled-btn {
+            background: rgba(255,255,255,0.06);
+            color: var(--text-muted, #64748b);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .food-card .add-btn.disabled-btn:hover {
+            filter: none;
+            transform: none;
+        }
+
+        /* No-photo mode card */
+        .food-card.no-photo .price-tag {
+            position: relative;
+            top: auto; right: auto;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Cart FAB */
+        .cart-fab {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: var(--primary-color, #f97316);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(249, 115, 22, 0.4);
+            z-index: 900;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .cart-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(249, 115, 22, 0.5);
+        }
+        .cart-fab .fab-count {
+            position: absolute;
+            top: -4px; right: -4px;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            border: 3px solid var(--bg-color, #0a0a1a);
+        }
+
+        /* Bottom bar */
+        .bottom-strip {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            text-align: center;
+            padding: 8px;
+            pointer-events: none;
+            z-index: 50;
+        }
+        .bottom-strip a, .bottom-strip span {
+            pointer-events: auto;
+            color: rgba(255,255,255,0.15);
+            font-size: 0.75rem;
+            text-decoration: none;
+            margin: 0 8px;
+        }
+        .bottom-strip a:hover { color: rgba(255,255,255,0.5); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .topbar-search { max-width: 200px; }
+            .topbar-orders { display: none; }
+            .menu-topbar { padding: 10px 16px; flex-wrap: wrap; }
+            .food-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+            .table-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+        }
+        @media (max-width: 480px) {
+            .topbar-search { max-width: 100%; flex: 1 1 100%; order: 10; }
+            .food-grid { grid-template-columns: 1fr; }
         }
     </style>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <?= getCustomStyles() ?>
+    <script src="assets/js/theme.js"></script>
 </head>
 
 <body>
+    <div class="page-bg"></div>
+    <div class="page-content">
 
     <?php if (!$table_number): ?>
-        <!-- Landing Page Kiosk View -->
-        <!-- Landing Page Kiosk View: Table Selection -->
-        <div class="kiosk-hero"
-            style="min-height: 100vh; margin: 0; display:flex; flex-direction:column; align-items:center; overflow-y: auto;">
-            <div style="text-align: center; margin-top: 60px; margin-bottom: 20px; z-index:2;">
-                <h1 style="font-size: 3.5rem; margin-bottom: 10px; text-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-                    <span data-i18n="welcome">Welcome to</span> <?= htmlspecialchars(getSetting('restaurant_name', 'OBJSIS')) ?>
-                </h1>
-                <p style="font-size: 1.2rem; opacity: 0.9;" data-i18n="select_table">Please select your table to start ordering</p>
+        <!-- ========== LANDING PAGE: TABLE SELECTION ========== -->
+        <div class="landing-wrapper">
+            <div class="landing-header">
+                <div class="subtitle" data-i18n="welcome">Welcome to</div>
+                <h1><span class="restaurant-name"><?= htmlspecialchars($restaurant_name) ?></span></h1>
+                <p class="description" data-i18n="select_table">Please select your table to begin ordering</p>
             </div>
 
-            <div class="tables-grid-customer" style="width: 100%; z-index:2; padding-bottom: 50px;">
+            <div class="table-grid">
                 <?php foreach ($tables as $tbl): ?>
                     <?php if ($tbl['status'] === 'free'): ?>
-                        <a href="?table=<?= $tbl['id'] ?>" class="table-card-customer status-free">
-                            <i class="fas fa-utensils" style="font-size: 2rem; margin-bottom: 10px; color: var(--success);"></i>
-                            <div style="font-size: 1.5rem; font-weight: bold;"><?= htmlspecialchars($tbl['name']) ?></div>
-                            <div style="font-size: 0.9rem; opacity: 0.7;"><span data-i18n="capacity">Capacity</span>: <?= $tbl['capacity'] ?></div>
+                        <a href="?table=<?= $tbl['id'] ?>" class="table-tile tile-free">
+                            <i class="fas fa-utensils table-icon"></i>
+                            <div class="table-name"><?= htmlspecialchars($tbl['name']) ?></div>
+                            <div class="table-cap"><span data-i18n="capacity">Capacity</span>: <?= $tbl['capacity'] ?></div>
                         </a>
+                    <?php elseif ($tbl['status'] === 'reserved'): ?>
+                        <div class="table-tile tile-reserved">
+                            <i class="fas fa-bookmark table-icon"></i>
+                            <div class="table-name"><?= htmlspecialchars($tbl['name']) ?></div>
+                            <span class="table-status-tag">Reserved</span>
+                        </div>
                     <?php else: ?>
-                        <div class="table-card-customer status-<?= $tbl['status'] ?>">
-                            <i class="fas fa-ban" style="font-size: 2rem; margin-bottom: 10px; color: var(--danger);"></i>
-                            <div style="font-size: 1.5rem; font-weight: bold;"><?= htmlspecialchars($tbl['name']) ?></div>
+                        <div class="table-tile tile-occupied">
+                            <i class="fas fa-users table-icon"></i>
+                            <div class="table-name"><?= htmlspecialchars($tbl['name']) ?></div>
+                            <span class="table-status-tag">Occupied</span>
                         </div>
                     <?php endif; ?>
                 <?php endforeach; ?>
             </div>
 
-            <div style="margin-top: 2rem; z-index: 2; margin-bottom: 20px;">
-                <a href="login.php" style="color: var(--text-muted); opacity: 0.6; font-size: 0.9rem;" data-i18n="staff_login">Staff Login</a>
+            <div class="landing-footer">
+                <a href="login.php" data-i18n="staff_login">Staff Login</a>
             </div>
         </div>
-    <?php else: ?>
-        <!-- Menu Kiosk View -->
-        <div class="kiosk-hero">
-            <div class="table-info-container">
-                <div class="table-badge-large">
-                    <i class="fas fa-map-marker-alt" style="color:var(--primary-color)"></i>
-                    <span data-i18n="table">Table</span> <?= htmlspecialchars($table_number) ?>
-                </div>
 
-                <?php if (!empty($active_orders)): ?>
-                    <?php foreach ($active_orders as $ao): ?>
-                        <div onclick="showOrderDetails(<?= htmlspecialchars(json_encode($ao)) ?>)" class="order-status-chip">
-                            <span>Order #<?= $ao['id'] ?></span>
-                            <span style="font-size:0.8em; opacity:0.8; text-transform:uppercase;"><?= $ao['status'] ?></span>
-                            <i class="fas fa-chevron-right" style="font-size:0.8em;"></i>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+    <?php else: ?>
+        <!-- ========== MENU VIEW ========== -->
+
+        <!-- Top Bar -->
+        <div class="menu-topbar">
+            <div class="topbar-brand"><?= htmlspecialchars($restaurant_name) ?></div>
+
+            <div class="topbar-table-badge">
+                <i class="fas fa-map-marker-alt"></i>
+                <span data-i18n="table">Table</span> <?= htmlspecialchars($table_number) ?>
             </div>
 
-            <!-- Menu Header & Search -->
-            <div style="margin-bottom: 30px; display: flex; flex-direction: column; gap: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div style="z-index: 2; position: relative;">
-                        <h1 style="font-size: 3rem; margin-bottom: 0.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);" data-i18n="<?= !empty($active_orders) ? 'ordering_more' : 'our_menu' ?>">
-                            <?= !empty($active_orders) ? 'Ordering More?' : 'Our Menu' ?>
-                        </h1>
-                        <p style="color: rgba(255,255,255,0.9); text-shadow: 0 1px 4px rgba(0,0,0,0.5);" data-i18n="<?= !empty($active_orders) ? 'add_more_desc' : 'select_cat_desc' ?>">
-                            <?= !empty($active_orders) ? 'Add delicious items to your active orders' : 'Select a category to browse' ?>
-                        </p>
-                    </div>
+            <?php if (!empty($active_orders)): ?>
+                <div class="topbar-orders">
+                    <?php foreach ($active_orders as $ao): ?>
+                        <div class="topbar-order-chip" onclick="showOrderDetails(<?= htmlspecialchars(json_encode($ao)) ?>)">
+                            #<?= $ao['id'] ?> · <?= strtoupper($ao['status']) ?>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
+            <?php endif; ?>
 
-                <!-- Live Search -->
-                <div style="position: relative; z-index: 2;">
-                    <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); opacity: 0.5;"></i>
-                    <input type="text" id="menu-search" onkeyup="filterMenu()"
-                           data-i18n="search_hint" placeholder="Search for food..."
-                           style="width: 100%; padding: 15px 15px 15px 45px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg-glass); color: var(--text-main); backdrop-filter: blur(10px); box-shadow: var(--shadow-sm); font-size: 1rem;">
-                </div>
+            <div class="topbar-search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="menu-search" onkeyup="filterMenu()" data-i18n="search_hint" placeholder="Search menu...">
+            </div>
+
+            <div class="topbar-actions">
+                <div class="topbar-btn" onclick="toggleTheme()" title="Toggle Theme"><i class="fas fa-adjust"></i></div>
+                <div class="topbar-btn" onclick="toggleLanguage()" title="Switch Language"><span id="lang-indicator">EN</span></div>
+                <div class="topbar-btn" onclick="toggleTracking()" title="Track Orders"><i class="fas fa-clock-rotate-left"></i></div>
             </div>
         </div>
 
         <?php if (!empty($categories)): ?>
-            <!-- Sticky Nav -->
-            <div class="kiosk-nav-wrapper">
-                <nav class="kiosk-nav">
-                    <?php foreach ($categories as $i => $category): ?>
-                        <?php if (isset($menu[$category['name']])): ?>
-                            <a href="#cat-<?= $i ?>" class="kiosk-category <?= $i === 0 ? 'active' : '' ?>">
-                                <?= htmlspecialchars($category['name']) ?>
-                            </a>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </nav>
-            </div>
-
-            <div class="container" style="padding-bottom: 100px;">
+            <!-- Category Pills -->
+            <div class="category-bar">
                 <?php foreach ($categories as $i => $category): ?>
                     <?php if (isset($menu[$category['name']])): ?>
-                        <div id="cat-<?= $i ?>" style="scroll-margin-top: 120px; margin-bottom: 4rem;">
-                            <h2
-                                style="font-size: 2rem; margin-bottom: 1.5rem; padding-left: 10px; border-left: 4px solid var(--primary-color);">
-                                <?= htmlspecialchars($category['name']) ?>
-                            </h2>
+                        <a href="#cat-<?= $i ?>" class="cat-pill <?= $i === 0 ? 'active' : '' ?>">
+                            <?= htmlspecialchars($category['name']) ?>
+                        </a>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
 
-                            <div class="menu-grid">
+            <!-- Food Items -->
+            <div class="menu-body">
+                <?php foreach ($categories as $i => $category): ?>
+                    <?php if (isset($menu[$category['name']])): ?>
+                        <div id="cat-<?= $i ?>" class="category-section">
+                            <h2 class="category-title"><?= htmlspecialchars($category['name']) ?></h2>
+
+                            <div class="food-grid">
                                 <?php foreach ($menu[$category['name']] as $item): ?>
-                                    <div class="card item-card <?= !$item['is_available'] ? 'sold-out' : '' ?>"
-                                        style="padding: 0; overflow: hidden; display: flex; flex-direction: column; position: relative;">
-
+                                    <div class="food-card <?= !$item['is_available'] ? 'sold-out' : '' ?> <?= getSetting('show_menu_photos', '1') !== '1' ? 'no-photo' : '' ?>">
+                                        
                                         <?php if (!$item['is_available']): ?>
                                             <div class="sold-out-badge" data-i18n="sold_out">SOLD OUT</div>
                                         <?php endif; ?>
 
                                         <?php if (getSetting('show_menu_photos', '1') === '1'): ?>
-                                            <div style="height: 200px; background-color: #333; position: relative;">
+                                            <div class="food-img">
                                                 <?php if ($item['image_url']): ?>
-                                                    <img src="<?= htmlspecialchars($item['image_url']) ?>"
-                                                        style="width:100%; height:100%; object-fit:cover; border-radius: 0;">
+                                                    <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" loading="lazy">
                                                 <?php else: ?>
-                                                    <div
-                                                        style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.1); font-size:3rem;">
-                                                        <i class="fas fa-image"></i>
-                                                    </div>
+                                                    <div class="placeholder-icon"><i class="fas fa-utensils"></i></div>
                                                 <?php endif; ?>
-                                                <div
-                                                    style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 5px 10px; border-radius: 20px; font-weight: bold;">
-                                                    <?= number_format($item['price'], 2) ?> €
-                                                </div>
-                                            </div>
-                                        <?php else: ?>
-                                            <!-- No Photo Mode -->
-                                            <div
-                                                style="padding: 15px 20px 0 20px; display:flex; justify-content:space-between; align-items:flex-start;">
-                                                <div></div>
-                                                <div
-                                                    style="background: rgba(255,255,255,0.1); color: #fff; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size:0.9rem;">
-                                                    <?= number_format($item['price'], 2) ?> €
-                                                </div>
+                                                <div class="price-tag"><?= number_format($item['price'], 2) ?> €</div>
                                             </div>
                                         <?php endif; ?>
 
-                                        <div style="padding: 20px; flex: 1; display: flex; flex-direction: column;">
-                                            <h3 style="margin-bottom: 10px;"><?= htmlspecialchars($item['name']) ?></h3>
+                                        <div class="food-info">
+                                            <?php if (getSetting('show_menu_photos', '1') !== '1'): ?>
+                                                <div class="price-tag"><?= number_format($item['price'], 2) ?> €</div>
+                                            <?php endif; ?>
+
+                                            <h3><?= htmlspecialchars($item['name']) ?></h3>
+
                                             <?php if ($item['allergens']): ?>
-                                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
-                                                    <span data-i18n="allergens">Allergens</span>: <?= htmlspecialchars($item['allergens']) ?>
+                                                <div class="allergen-info">
+                                                    <i class="fas fa-exclamation-triangle"></i> <span data-i18n="allergens">Allergens</span>: <?= htmlspecialchars($item['allergens']) ?>
                                                 </div>
                                             <?php endif; ?>
-                                            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px; flex: 1;">
-                                                <?= htmlspecialchars($item['description']) ?>
-                                            </p>
+
+                                            <p class="food-desc"><?= htmlspecialchars($item['description']) ?></p>
 
                                             <?php if ($item['is_available']): ?>
-                                                <button class="btn" style="width: 100%;"
-                                                    onclick="addToCart(<?= $item['id'] ?>, '<?= addslashes($item['name']) ?>', <?= $item['price'] ?>)">
-                                                    <span data-i18n="add">Add</span> <i class="fas fa-plus" style="margin-left: 8px;"></i>
+                                                <button class="add-btn" onclick="addToCart(<?= $item['id'] ?>, '<?= addslashes($item['name']) ?>', <?= $item['price'] ?>)">
+                                                    <span data-i18n="add">Add to Order</span> <i class="fas fa-plus"></i>
                                                 </button>
                                             <?php else: ?>
-                                                <button class="btn" style="width: 100%; background: #444; cursor: not-allowed;" disabled>
-                                                    <span data-i18n="out_of_stock">Out of Stock</span> <i class="fas fa-times" style="margin-left: 8px;"></i>
+                                                <button class="add-btn disabled-btn" disabled>
+                                                    <span data-i18n="out_of_stock">Out of Stock</span>
                                                 </button>
                                             <?php endif; ?>
                                         </div>
@@ -307,15 +788,11 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
             </div>
 
             <!-- Order Details Modal -->
-            <div id="order-details-modal"
-                style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2001; justify-content:center; align-items:center;">
-                <div class="card" style="width: 350px; max-width:90%;">
-                    <div
-                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid var(--border-color);">
+            <div id="order-details-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2001; justify-content:center; align-items:center;">
+                <div class="card" style="width: 380px; max-width:90%; border-radius: 20px; padding: 28px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid var(--border-color);">
                         <h3 id="od-title">Order #</h3>
-                        <button onclick="document.getElementById('order-details-modal').style.display='none'"
-                            style="background:none; border:none; color:var(--text-muted); cursor:pointer;"><i
-                                class="fas fa-times"></i></button>
+                        <button onclick="document.getElementById('order-details-modal').style.display='none'" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;"><i class="fas fa-times"></i></button>
                     </div>
                     <div id="od-content" style="margin-bottom:20px; color:var(--text-main);"></div>
                     <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.1rem;">
@@ -332,10 +809,8 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                 function showOrderDetails(order) {
                     document.getElementById('od-title').innerText = 'Order #' + order.id;
                     document.getElementById('od-total').innerText = parseFloat(order.total_price).toFixed(2) + ' €';
-
                     document.getElementById('od-status').innerText = order.status.toUpperCase();
                     document.getElementById('od-status').style.background = 'var(--primary-color)';
-
                     const items = order.item_details.split('||');
                     let html = '<ul style="list-style:none; padding:0;">';
                     items.forEach(item => {
@@ -343,25 +818,21 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                     });
                     html += '</ul>';
                     document.getElementById('od-content').innerHTML = html;
-
                     document.getElementById('order-details-modal').style.display = 'flex';
                 }
             </script>
 
-            <!-- Cart Floating Action Button (FAB) -->
-            <div id="floating-cart-btn" onclick="toggleCart()"
-                style="display:none; position:fixed; bottom:30px; right:30px; width: 70px; height: 70px; background:var(--primary-color); border-radius:50%; box-shadow: var(--shadow-glow); cursor:pointer; display: flex; align-items: center; justify-content: center; z-index: 1000;">
-                <i class="fas fa-shopping-basket" style="font-size: 1.8rem; color: #fff;"></i>
-                <span id="cart-count"
-                    style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; border: 2px solid var(--bg-color);">0</span>
+            <!-- Cart FAB -->
+            <div id="floating-cart-btn" class="cart-fab" onclick="toggleCart()" style="display:none;">
+                <i class="fas fa-shopping-basket"></i>
+                <span id="cart-count" class="fab-count">0</span>
             </div>
 
             <!-- Cart Drawer -->
             <div id="cart-modal">
                 <div class="cart-header">
                     <h3 style="margin:0;" data-i18n="your_order">Your Order</h3>
-                    <button onclick="toggleCart()"
-                        style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.5rem;">
+                    <button onclick="toggleCart()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.5rem;">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -372,74 +843,50 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
 
                 <div class="cart-footer">
                     <!-- Coupon Section -->
-                    <div
-                        style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 15px; border:1px solid var(--border-color);">
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; margin-bottom: 15px; border:1px solid var(--border-color);">
                         <div style="display:flex; gap:8px;">
-                            <input type="text" id="coupon-input" placeholder="Promo Code"
-                                style="flex:1; padding:8px 12px; font-size:0.9rem;">
-                            <button onclick="applyCoupon()" class="btn"
-                                style="padding:8px 15px; font-size:0.85rem;">Apply</button>
+                            <input type="text" id="coupon-input" placeholder="Promo Code" style="flex:1; padding:8px 12px; font-size:0.9rem;">
+                            <button onclick="applyCoupon()" class="btn" style="padding:8px 15px; font-size:0.85rem;">Apply</button>
                         </div>
                         <div id="coupon-msg" style="font-size: 0.85rem; margin-top: 5px;"></div>
                     </div>
 
                     <div style="margin-bottom: 15px;">
-                        <div
-                            style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem; color:var(--text-muted);">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem; color:var(--text-muted);">
                             <span data-i18n="subtotal">Subtotal:</span>
                             <span id="cart-subtotal">0.00 €</span>
                         </div>
-                        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem; color: var(--success); display:none;"
-                            id="discount-row">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.9rem; color: var(--success); display:none;" id="discount-row">
                             <span data-i18n="discount">Discount:</span>
                             <span id="cart-discount">-0.00 €</span>
                         </div>
-                        <div
-                            style="display:flex; justify-content:space-between; font-weight:700; font-size: 1.3rem; color:var(--text-main); border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 5px;">
+                        <div style="display:flex; justify-content:space-between; font-weight:700; font-size: 1.3rem; color:var(--text-main); border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 5px;">
                             <span data-i18n="total">Total:</span>
                             <span><span id="cart-total">0.00</span> €</span>
                         </div>
                     </div>
 
-                    <button onclick="placeOrder()" class="btn"
-                        style="width:100%; padding: 15px; font-size: 1.1rem; justify-content: center; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);">
+                    <button onclick="placeOrder()" class="btn" style="width:100%; padding: 15px; font-size: 1.1rem; justify-content: center; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);">
                         <span data-i18n="confirm_order">Confirm Order</span> <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
                     </button>
                 </div>
             </div>
-            </div>
 
-            <p
-                style="text-align: center; margin-top: 2rem; position: fixed; bottom: 10px; left: 0; width: 100%; pointer-events: none; display: flex; flex-direction: column; gap: 5px;">
-                <a href="?exit=1" style="color: rgba(255,255,255,0.2); pointer-events: auto; font-size: 0.8rem;" data-i18n="exit_table">Exit
-                    Table</a>
-                <span
-                    style="color: rgba(255,255,255,0.1); font-size: 0.7rem; pointer-events: auto;"><?= OBJSIS_VERSION ?></span>
-            </p>
+            <!-- Bottom strip -->
+            <div class="bottom-strip">
+                <a href="?exit=1" data-i18n="exit_table">Exit Table</a>
+                <span><?= OBJSIS_VERSION ?></span>
+            </div>
 
             <script src="assets/js/app.js"></script>
         <?php endif; ?>
     <?php endif; ?>
-    <div onclick="toggleTheme()"
-        style="position:fixed; top:20px; left:20px; width:40px; height:40px; background:var(--card-bg-glass); border:1px solid var(--border-color); border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; z-index:2000; backdrop-filter:blur(5px); color:var(--text-muted); box-shadow:var(--shadow-sm);">
-        <i class="fas fa-adjust"></i>
-    </div>
 
-    <!-- Language Switcher -->
-    <div onclick="toggleLanguage()"
-        style="position:fixed; top:70px; left:20px; width:40px; height:40px; background:var(--card-bg-glass); border:1px solid var(--border-color); border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; z-index:2000; backdrop-filter:blur(5px); color:var(--text-muted); box-shadow:var(--shadow-sm); font-weight: 800; font-size: 0.7rem;">
-        <span id="lang-indicator">EN</span>
-    </div>
-
-    <!-- Order Tracking Trigger -->
-    <div onclick="toggleTracking()"
-        style="position:fixed; top:120px; left:20px; width:40px; height:40px; background:var(--card-bg-glass); border:1px solid var(--border-color); border-radius:50%; display:flex; justify-content:center; align-items:center; cursor:pointer; z-index:2000; backdrop-filter:blur(5px); color:var(--text-muted); box-shadow:var(--shadow-sm);">
-        <i class="fas fa-clock-rotate-left"></i>
-    </div>
+    </div><!-- /.page-content -->
 
     <!-- Tracking Modal -->
     <div id="tracking-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; justify-content:center; align-items:center;">
-        <div class="card" style="width:400px; max-width:90%; padding:30px;">
+        <div class="card" style="width:400px; max-width:90%; padding:30px; border-radius: 20px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h3 data-i18n="order_tracking">Track Your Orders</h3>
                 <button onclick="toggleTracking()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">&times;</button>
@@ -477,14 +924,11 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translations[currentLang][key]) {
-                    // Check if it's an input placeholder
                     if (el.tagName === 'INPUT') {
                         el.placeholder = translations[currentLang][key];
                     } else {
-                        // Preserve existing icons if any (simple hack: only replace text if no children OR specific handling)
                         const icon = el.querySelector('i');
                         if (icon) {
-                            // Find the text node and replace it
                             el.childNodes.forEach(node => {
                                 if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0) {
                                     node.textContent = translations[currentLang][key];
@@ -496,7 +940,6 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                     }
                 }
             });
-            // Update tracking content if open
             if(document.getElementById('tracking-modal').style.display === 'flex') {
                 updateTracking();
             }
@@ -507,18 +950,22 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
         // --- Live Search ---
         function filterMenu() {
             const query = document.getElementById('menu-search').value.toLowerCase();
-            const items = document.querySelectorAll('.item-card');
-            
+            const items = document.querySelectorAll('.food-card');
             items.forEach(card => {
-                const name = card.querySelector('h3').innerText.toLowerCase();
-                const desc = card.querySelector('p').innerText.toLowerCase();
-                if (name.includes(query) || desc.includes(query)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
-                }
+                const name = card.querySelector('h3')?.innerText.toLowerCase() || '';
+                const desc = card.querySelector('.food-desc')?.innerText.toLowerCase() || '';
+                card.style.display = (name.includes(query) || desc.includes(query)) ? 'flex' : 'none';
             });
         }
+
+        // --- Category pill active state on scroll ---
+        const catPills = document.querySelectorAll('.cat-pill');
+        catPills.forEach(pill => {
+            pill.addEventListener('click', function(e) {
+                catPills.forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
 
         // --- Order Tracking ---
         function toggleTracking() {
@@ -546,7 +993,7 @@ $page_title = $table_number ? "Table $table_number" : "Welcome";
                                     <div style="font-weight:700; color:var(--text-main);">Order #${o.id}</div>
                                     <div style="font-size:0.8rem; color:var(--text-muted);">${new Date(o.created_at).toLocaleTimeString()}</div>
                                 </div>
-                                <div class="status-badge status-${o.status}" style="font-size:0.7rem; padding:4px 10px; border-radius:20px; background: var(--primary-color); color:white; font-weight:800; text-transform:uppercase;">
+                                <div style="font-size:0.7rem; padding:4px 10px; border-radius:20px; background: var(--primary-color); color:white; font-weight:800; text-transform:uppercase;">
                                     ${translations[currentLang]['status_' + o.status] || o.status}
                                 </div>
                             </div>
