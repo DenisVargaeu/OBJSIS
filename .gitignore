@@ -36,6 +36,7 @@ sessions/
 *.bak
 *.backup
 backup/
+backups/
 
 # Environment Files
 .env
@@ -48,13 +49,11 @@ backup/
 node_modules/
 
 # OS Files
-.DS_Store
-.DS_Store?
+Desktop.ini
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Desktop.ini
 
 # Database Dumps
 *.sql.gz

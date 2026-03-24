@@ -1,13 +1,13 @@
--- OBJSIS V2 - Complete Database Schema (beta 2.0)
--- Host: localhost
--- Generation Time: Jan 01, 2026
+-- OBJSIS V2 - Complete Database Schema
+-- Version: 2.5.4
+-- Last Updated: 2026-03-23
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
--- 1. SETTINGS TABLE
+-- 1. SETTINGS
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `settings` (
   `setting_key` varchar(50) NOT NULL,
@@ -20,23 +20,104 @@ INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
 ('restaurant_name', 'My Restaurant');
 
 -- --------------------------------------------------------
--- 2. USERS TABLE
+-- 2. PERMISSIONS
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `permissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO `permissions` (`name`, `description`) VALUES
+('view_dashboard', 'Ability to view the main dashboard'),
+('manage_users', 'Ability to add, edit, and delete users'),
+('view_menu', 'Ability to view the menu management page'),
+('manage_menu', 'Ability to edit menu items and categories'),
+('view_orders', 'Ability to view orders (e.g., KDS or Order list)'),
+('manage_orders', 'Ability to create, update, or cancel orders'),
+('view_inventory', 'Ability to view stock levels'),
+('manage_inventory', 'Ability to update stock and logs'),
+('view_reports', 'Ability to view sales and performance reports'),
+('manage_settings', 'Ability to change system settings'),
+('manage_roles', 'Ability to manage roles and their permissions'),
+('manage_system', 'Global system management permission');
+
+-- --------------------------------------------------------
+-- 3. ROLES
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `roles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `display_name` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO `roles` (`name`, `display_name`) VALUES
+('admin', 'Administrator'),
+('manager', 'Manager'),
+('cook', 'Chef / Cook'),
+('waiter', 'Server / Waiter'),
+('inventory', 'Inventory Staff');
+
+-- --------------------------------------------------------
+-- 4. ROLE_PERMISSIONS (mapping)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `role_permissions` (
+  `role_id` int(11) NOT NULL,
+  `permission_id` int(11) NOT NULL,
+  PRIMARY KEY (`role_id`, `permission_id`),
+  CONSTRAINT `role_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `role_permissions_ibfk_2` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Admin: Everything
+INSERT IGNORE INTO `role_permissions` (role_id, permission_id)
+SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'admin';
+
+-- Manager: Most things except roles/system settings
+INSERT IGNORE INTO `role_permissions` (role_id, permission_id)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'manager' AND p.name NOT IN ('manage_roles', 'manage_settings');
+
+-- Cook: View orders, manage order status, view menu, dashboard
+INSERT IGNORE INTO `role_permissions` (role_id, permission_id)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'cook' AND p.name IN ('view_orders', 'manage_orders', 'view_menu', 'view_dashboard');
+
+-- Waiter: View/manage orders, view menu, dashboard
+INSERT IGNORE INTO `role_permissions` (role_id, permission_id)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'waiter' AND p.name IN ('view_orders', 'manage_orders', 'view_menu', 'view_dashboard');
+
+-- Inventory: View menu, manage inventory, dashboard
+INSERT IGNORE INTO `role_permissions` (role_id, permission_id)
+SELECT r.id, p.id FROM roles r, permissions p 
+WHERE r.name = 'inventory' AND p.name IN ('view_menu', 'view_inventory', 'manage_inventory', 'view_dashboard');
+
+-- --------------------------------------------------------
+-- 5. USERS
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `pin_hash` varchar(255) NOT NULL,
   `role` enum('admin','cook','waiter','inventory') NOT NULL,
+  `role_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `role_id` (`role_id`),
+  CONSTRAINT `users_ibfk_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Note: Default admin PIN is '1234' (pre-hashed)
+-- Default admin (PIN: 1234)
 INSERT INTO `users` (`name`, `pin_hash`, `role`) VALUES
 ('Admin', '$2y$10$R9h/lIPzLpC.qGvFh9U9u.u.u.u.u.u.u.u.u.u.u.u.u.u.u.u.', 'admin');
 
 -- --------------------------------------------------------
--- 3. CATEGORIES TABLE
+-- 6. CATEGORIES
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -52,7 +133,7 @@ INSERT INTO `categories` (`id`, `name`, `sort_order`) VALUES
 (4, 'Beverages', 4);
 
 -- --------------------------------------------------------
--- 4. MENU_ITEMS TABLE
+-- 7. MENU_ITEMS
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `menu_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -70,7 +151,7 @@ CREATE TABLE IF NOT EXISTS `menu_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
--- 5. TABLES TABLE
+-- 8. TABLES
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `tables` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -89,7 +170,7 @@ INSERT INTO `tables` (`id`, `name`, `capacity`, `status`) VALUES
 (5, 'Table 5', 4, 'free');
 
 -- --------------------------------------------------------
--- 6. ORDERS TABLE
+-- 9. ORDERS
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -105,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
--- 7. ORDER_ITEMS TABLE
+-- 10. ORDER_ITEMS
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `order_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -122,7 +203,7 @@ CREATE TABLE IF NOT EXISTS `order_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
--- 8. COUPONS TABLE
+-- 11. COUPONS
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `coupons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -140,7 +221,7 @@ CREATE TABLE IF NOT EXISTS `coupons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
--- 9. SHIFTS TABLE
+-- 12. SHIFTS
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `shifts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -155,7 +236,7 @@ CREATE TABLE IF NOT EXISTS `shifts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
--- 10. INVENTORY TABLE
+-- 13. INVENTORY
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `inventory` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -168,7 +249,7 @@ CREATE TABLE IF NOT EXISTS `inventory` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
--- 11. MENU_ITEM_INGREDIENTS TABLE
+-- 14. MENU_ITEM_INGREDIENTS
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `menu_item_ingredients` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -183,7 +264,7 @@ CREATE TABLE IF NOT EXISTS `menu_item_ingredients` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
--- 12. INVENTORY_LOGS TABLE
+-- 15. INVENTORY_LOGS
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `inventory_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
