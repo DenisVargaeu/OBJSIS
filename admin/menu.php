@@ -93,7 +93,7 @@ $page_title = "Menu Management";
 
                                         <div class="item-actions" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                                             <button class="btn btn-secondary" style="grid-column: span 2; padding: 8px; font-size: 0.85rem;"
-                                                onclick="openRecipeModal(<?= $item['id'] ?>, '<?= addslashes($item['name']) ?>')">
+                                                onclick="openRecipeModal(<?= $item['id'] ?>, <?= htmlspecialchars(json_encode($item['name'])) ?>)">
                                                 <i class="fas fa-list-check"></i> Manage Recipe
                                             </button>
                                             <button class="btn btn-secondary" style="padding: 8px; font-size: 0.85rem;"
@@ -125,6 +125,8 @@ $page_title = "Menu Management";
         <div class="stat-card" style="width: 500px; max-width: 90%; padding: 24px; flex-direction: column; align-items: stretch;">
             <h3 id="modal-title" style="margin-bottom: 20px; font-size: 1.25rem; font-weight: 700;">Add New Item</h3>
             <form id="item-form" onsubmit="event.preventDefault(); submitItemForm(this);">
+                <!-- SECURITY FIX: CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                 <input type="hidden" name="action" id="form-action" value="add_item">
                 <input type="hidden" name="id" id="item-id">
                 
@@ -189,6 +191,8 @@ $page_title = "Menu Management";
             <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); padding: 20px; border-radius: 16px;">
                 <h4 style="margin: 0 0 15px 0; font-size: 1rem; color: var(--text-main);">Add Ingredient</h4>
                 <form id="add-ingredient-form" onsubmit="event.preventDefault(); submitAddIngredient(this);">
+                    <!-- SECURITY FIX: CSRF Token -->
+                    <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                     <input type="hidden" name="menu_item_id" id="recipe-menu-item-id">
                     <input type="hidden" name="action" value="add_ingredient">
                     <div style="display:grid; grid-template-columns: 2fr 1fr; gap:12px; align-items:flex-end;">
@@ -242,6 +246,8 @@ $page_title = "Menu Management";
         function postAction(action, data) {
             const formData = new FormData();
             formData.append('action', action);
+            // SECURITY FIX: Add CSRF Token
+            formData.append('csrf_token', OBJSIS_CSRF_TOKEN);
             for (let key in data) {
                 formData.append(key, data[key]);
             }
@@ -268,7 +274,8 @@ $page_title = "Menu Management";
 
         function openRecipeModal(itemId, itemName) {
             currentMenuItemId = itemId;
-            document.getElementById('recipe-title').innerHTML = "<i class='fas fa-book' style='color:var(--primary-color); margin-right:10px;'></i> Recipe: " + itemName;
+            // SECURITY FIX: Use escHTML
+            document.getElementById('recipe-title').innerHTML = "<i class='fas fa-book' style='color:var(--primary-color); margin-right:10px;'></i> Recipe: " + escHTML(itemName);
             document.getElementById('recipe-menu-item-id').value = itemId;
             document.getElementById('recipe-modal').style.display = 'flex';
             loadRecipe(itemId);
@@ -293,8 +300,9 @@ $page_title = "Menu Management";
                             res.ingredients.forEach(i => {
                                 html += `
                                     <tr>
-                                        <td style="padding:14px 10px; border-bottom:1px solid rgba(255,255,255,0.05); font-weight:600;">${i.ingredient_name}</td>
-                                        <td style="padding:14px 10px; border-bottom:1px solid rgba(255,255,255,0.05); text-align:right; color: var(--primary-color); font-weight:700;">${parseFloat(i.quantity_required)} ${i.unit}</td>
+                                        <!-- SECURITY FIX: Use escHTML for ingredient name -->
+                                        <td style="padding:14px 10px; border-bottom:1px solid rgba(255,255,255,0.05); font-weight:600;">${escHTML(i.ingredient_name)}</td>
+                                        <td style="padding:14px 10px; border-bottom:1px solid rgba(255,255,255,0.05); text-align:right; color: var(--primary-color); font-weight:700;">${parseFloat(i.quantity_required)} ${escHTML(i.unit)}</td>
                                         <td style="padding:14px 10px; border-bottom:1px solid rgba(255,255,255,0.05); text-align:right; width:44px;">
                                             <button onclick="removeIngredient(${i.id})" style="background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); color:var(--danger); cursor:pointer; width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; transition: var(--transition-base);">
                                                 <i class="fas fa-trash-alt" style="font-size:0.8rem;"></i>
@@ -332,6 +340,8 @@ $page_title = "Menu Management";
             const formData = new FormData();
             formData.append('action', 'remove_ingredient');
             formData.append('id', id);
+            // SECURITY FIX: Add CSRF Token
+            formData.append('csrf_token', OBJSIS_CSRF_TOKEN);
 
             fetch('../api/recipe_actions.php', { method: 'POST', body: formData })
                 .then(res => res.json())

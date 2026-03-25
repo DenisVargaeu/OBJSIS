@@ -8,61 +8,82 @@ session_start();
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $pin = $_POST['pin'] ?? '';
+    // SECURITY FIX: Brute-force protection
+    if (!isset($_SESSION['failed_attempts'])) $_SESSION['failed_attempts'] = 0;
+    if (!isset($_SESSION['last_attempt_time'])) $_SESSION['last_attempt_time'] = 0;
 
-    if (!empty($pin)) {
+    $currentTime = time();
+    $lockoutTime = 300; // 5 minutes
 
-        try {
-            // Jednoduchý query bez roles tabuľky
-            $stmt = $pdo->query("SELECT * FROM users");
-            $users = $stmt->fetchAll();
-
-            $user_found = false;
-
-            foreach ($users as $user) {
-                if (verifyPin($pin, $user['pin_hash'])) {
-
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['user_name'] = $user['name'];
-
-                    // Get Role and Permissions
-                    $stmt_role = $pdo->prepare("
-                        SELECT r.name as role_name, r.id as role_id, p.name as permission_name 
-                        FROM roles r
-                        LEFT JOIN role_permissions rp ON r.id = rp.role_id
-                        LEFT JOIN permissions p ON rp.permission_id = p.id
-                        WHERE r.id = ?
-                    ");
-                    $stmt_role->execute([$user['role_id']]);
-                    $role_data = $stmt_role->fetchAll();
-
-                    if ($role_data) {
-                        $_SESSION['user_role'] = $role_data[0]['role_name'];
-                        $_SESSION['role_id'] = $role_data[0]['role_id'];
-                        $_SESSION['permissions'] = array_filter(array_column($role_data, 'permission_name'));
-                    } else {
-                        // Fallback to old system if role_id not set correctly
-                        $_SESSION['user_role'] = $user['role'];
-                        $_SESSION['permissions'] = [];
-                    }
-
-                    $user_found = true;
-                    break;
-                }
-            }
-
-            if ($user_found) {
-                redirect('admin/dashboard.php');
-            } else {
-                $error = "Invalid PIN";
-            }
-
-        } catch (PDOException $e) {
-            die("DB ERROR: " . $e->getMessage());
-        }
-
+    if ($_SESSION['failed_attempts'] >= 5 && ($currentTime - $_SESSION['last_attempt_time']) < $lockoutTime) {
+        $error = "Too many failed attempts. Please wait 5 minutes.";
     } else {
-        $error = "Please enter a PIN";
+        $pin = $_POST['pin'] ?? '';
+
+        if (!empty($pin)) {
+            try {
+                // SECURITY FIX: Limit user fetch to prevent OOM
+                $stmt = $pdo->query("SELECT * FROM users LIMIT 100");
+                $users = $stmt->fetchAll();
+
+                $user_found = false;
+
+                foreach ($users as $user) {
+                    if (verifyPin($pin, $user['pin_hash'])) {
+                        // SECURITY FIX: Prevent session fixation
+                        session_regenerate_id(true);
+
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_name'] = $user['name'];
+                        $_SESSION['failed_attempts'] = 0; // Reset on success
+
+                        // Get Role and Permissions
+                        $stmt_role = $pdo->prepare("
+                            SELECT r.name as role_name, r.id as role_id, p.name as permission_name 
+                            FROM roles r
+                            LEFT JOIN role_permissions rp ON r.id = rp.role_id
+                            LEFT JOIN permissions p ON rp.permission_id = p.id
+                            WHERE r.id = ?
+                        ");
+                        $stmt_role->execute([$user['role_id']]);
+                        $role_data = $stmt_role->fetchAll();
+
+                        if ($role_data) {
+                            $_SESSION['user_role'] = $role_data[0]['role_name'];
+                            $_SESSION['role_id'] = $role_data[0]['role_id'];
+                            $_SESSION['permissions'] = array_filter(array_column($role_data, 'permission_name'));
+                        } else {
+                            // Fallback to old system if role_id not set correctly
+                            $_SESSION['user_role'] = $user['role'];
+                            $_SESSION['permissions'] = [];
+                        }
+
+                        $user_found = true;
+                        break;
+                    }
+                }
+
+                if ($user_found) {
+                    redirect('admin/dashboard.php');
+                } else {
+                    $_SESSION['failed_attempts']++;
+                    $_SESSION['last_attempt_time'] = time();
+                    
+                    // SECURITY FIX: Add delay after 5 failures
+                    if ($_SESSION['failed_attempts'] >= 5) {
+                        sleep(3);
+                        $error = "Too many failed attempts. Locked for 5 minutes.";
+                    } else {
+                        $error = "Invalid PIN";
+                    }
+                }
+
+            } catch (PDOException $e) {
+                die("DB ERROR: " . $e->getMessage());
+            }
+        } else {
+            $error = "Please enter a PIN";
+        }
     }
 }
 

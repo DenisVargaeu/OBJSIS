@@ -80,6 +80,8 @@ $page_title = "Table Layout Management";
         <div class="stat-card" style="width: 380px; padding: 24px; flex-direction: column; align-items: stretch;">
             <h3 style="margin-bottom: 20px; font-size: 1.25rem; font-weight: 700;">Add New Table</h3>
             <form onsubmit="event.preventDefault(); submitAddTable(this);">
+                <!-- SECURITY FIX: CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                 <div class="form-group">
                     <label>Table Name / Number</label>
                     <input type="text" name="name" required placeholder="e.g. Table 10">
@@ -118,6 +120,8 @@ $page_title = "Table Layout Management";
             const formData = new FormData();
             formData.append('action', 'delete_table');
             formData.append('id', id);
+            // SECURITY FIX: Add CSRF Token
+            formData.append('csrf_token', OBJSIS_CSRF_TOKEN);
 
             fetch('../api/admin_actions.php', { method: 'POST', body: formData })
                 .then(res => res.json())

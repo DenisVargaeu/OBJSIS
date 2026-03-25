@@ -10,6 +10,10 @@ checkPermission('view_inventory');
 
 // Handle Add/Edit Ingredient
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // SECURITY FIX: CSRF Validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        die("CSRF Token Invalid");
+    }
     if (isset($_POST['add_item'])) {
         checkPermission('manage_inventory');
         $name = $_POST['name'];
@@ -171,6 +175,8 @@ $page_title = "Inventory Management";
                                         <i class="fas fa-history"></i>
                                     </button>
                                     <form method="POST" onsubmit="return confirm('Delete this ingredient?');" style="display:inline;">
+                                        <!-- SECURITY FIX: CSRF Token -->
+                                        <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                                         <input type="hidden" name="item_id" value="<?= $item['id'] ?>">
                                         <button type="submit" name="delete_item" class="btn" style="padding: 6px 10px; font-size: 0.8rem; background: var(--danger); border-radius: 8px;" title="Delete">
                                             <i class="fas fa-trash"></i>
@@ -193,6 +199,8 @@ $page_title = "Inventory Management";
 
                             <div style="display:flex; flex-direction:column; gap:12px; margin-top: auto;">
                                 <form method="POST" style="display: flex; gap: 8px; margin: 0;">
+                                    <!-- SECURITY FIX: CSRF Token -->
+                                    <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                                     <input type="hidden" name="item_id" value="<?= $item['id'] ?>">
                                     <input type="number" step="0.01" name="add_quantity" placeholder="Qty" required style="flex: 1; padding: 8px; font-size: 0.9rem;">
                                     <button type="submit" name="restock" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">
@@ -218,6 +226,8 @@ $page_title = "Inventory Management";
         <div class="stat-card" style="width: 420px; padding: 24px; flex-direction: column; align-items: stretch;">
             <h3 id="adjTitle" style="margin-bottom: 20px; font-size: 1.25rem; font-weight: 700;">Adjust Stock</h3>
             <form method="POST">
+                <!-- SECURITY FIX: CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                 <input type="hidden" name="item_id" id="adj-item-id">
                 <div class="form-group">
                     <label>Adjustment Type</label>
@@ -248,6 +258,8 @@ $page_title = "Inventory Management";
         <div class="stat-card" style="width: 400px; padding: 24px; flex-direction: column; align-items: stretch;">
             <h3 style="margin-bottom: 20px; font-size: 1.25rem; font-weight: 700;">Add New Ingredient</h3>
             <form method="POST">
+                <!-- SECURITY FIX: CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                 <div class="form-group">
                     <label>Item Name</label>
                     <input type="text" name="name" placeholder="e.g. Beef Patty" required>

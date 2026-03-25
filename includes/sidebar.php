@@ -4,6 +4,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
 $user_role = $_SESSION['user_role'] ?? 'waiter';
 $user_name = $_SESSION['user_name'] ?? 'User';
 
+// SECURITY FIX: Expose CSRF token to JavaScript
+$csrf_token = generateCsrfToken();
+echo "<script>const OBJSIS_CSRF_TOKEN = '" . $csrf_token . "';</script>";
+
 function isActive($page, $current)
 {
     return $page === $current ? 'active' : '';

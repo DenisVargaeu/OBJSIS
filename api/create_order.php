@@ -27,14 +27,26 @@ try {
 
     // Calculate initial total
     $total_price = 0;
-    foreach ($items as $item) {
+    foreach ($items as &$item) {
+        // SECURITY FIX: Look up real price from DB instead of trusting client input
+        $stmt_price = $pdo->prepare("SELECT price FROM menu_items WHERE id = ?");
+        $stmt_price->execute([$item['id']]);
+        $real_price = $stmt_price->fetchColumn();
+        
+        if ($real_price === false) {
+            throw new Exception("Menu item not found: " . $item['id']);
+        }
+        
+        $item['price'] = (float)$real_price; // Update item with real price for later use
         $total_price += ($item['price'] * $item['quantity']);
     }
+    unset($item);
 
     // Apply Coupon Logic
     $discount_amount = 0;
     if ($coupon_code) {
-        $stmt = $pdo->prepare("SELECT * FROM coupons WHERE code = ? AND is_active = 1");
+        // SECURITY FIX: Added checks for expiration_date and max_uses
+        $stmt = $pdo->prepare("SELECT * FROM coupons WHERE code = ? AND is_active = 1 AND (expiration_date IS NULL OR expiration_date > NOW()) AND (max_uses IS NULL OR current_uses < max_uses)");
         $stmt->execute([$coupon_code]);
         $coupon = $stmt->fetch();
 
@@ -44,6 +56,9 @@ try {
             } elseif ($coupon['type'] === 'percent') {
                 $discount_amount = $total_price * ($coupon['value'] / 100);
             }
+        } else {
+            // Optional: You could throw an error here if the coupon is invalid/expired
+            $coupon_code = null; // Reset coupon if invalid
         }
     }
 

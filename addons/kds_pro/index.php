@@ -181,17 +181,17 @@ $page_title = "KDS Pro Display";
                 return `
                     <div class="kds-card ${isUrgent ? 'urgent' : ''}">
                         <div class="card-header">
-                            <span style="font-size: 1.5rem; font-weight: 900;">T-${o.table_number}</span>
+                            <span style="font-size: 1.5rem; font-weight: 900;">T-${escHTML(o.table_number)}</span>
                             <span class="timer">${elapsed}M</span>
                         </div>
                         <div class="card-body">
                             ${items.map(i => `
                                 <div class="order-item">
                                     <span class="item-qty">${i.qty}x</span>
-                                    <span>${i.name}</span>
+                                    <span>${escHTML(i.name)}</span>
                                 </div>
                             `).join('')}
-                            ${o.note ? `<p style="margin-top:15px; color: #fb923c; font-size: 0.85rem; font-style: italic;"><i class="fas fa-comment"></i> ${o.note}</p>` : ''}
+                            ${o.note ? `<p style="margin-top:15px; color: #fb923c; font-size: 0.85rem; font-style: italic;"><i class="fas fa-comment"></i> ${escHTML(o.note)}</p>` : ''}
                         </div>
                         <div class="card-footer">
                             <button onclick="setStatus(${o.id}, 'ready')" class="btn" style="width: 100%; height: 50px; background: var(--success); font-weight: 800; border-radius: 12px;">

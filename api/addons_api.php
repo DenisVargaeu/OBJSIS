@@ -38,15 +38,56 @@ try {
                 $orders = $pdo->query("SELECT COUNT(*) FROM orders WHERE DATE(created_at) = CURDATE()")->fetchColumn() ?: 0;
                 $output = "REVENUE: " . number_format($revenue, 2) . " EUR\nORDERS: " . $orders . "\nDB: ONLINE";
             } elseif ($cmd === 'ls') {
-                $dir = $_GET['arg'] ?? '.';
-                // Basic security: only relative paths within assets or current dir
-                if (strpos($dir, '..') !== false) throw new Exception("Access Denied");
-                $files = scandir("../" . $dir);
+                $dir_arg = $_GET['arg'] ?? '.';
+                // SECURITY FIX: Prevent path traversal using realpath() and whitelisting
+                $base_dir = realpath(__DIR__ . "/..");
+                $requested_dir = realpath($base_dir . "/" . $dir_arg);
+                
+                $allowed_dirs = [
+                    $base_dir . "/assets",
+                    $base_dir . "/docs",
+                    $base_dir . "/sql"
+                ];
+                
+                $is_allowed = false;
+                if ($requested_dir !== false) {
+                    foreach ($allowed_dirs as $allowed) {
+                        if (strpos($requested_dir, $allowed) === 0) {
+                            $is_allowed = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!$is_allowed) throw new Exception("Access Denied: Directory not allowed");
+                
+                $files = scandir($requested_dir);
                 $output = implode("\n", array_diff($files, ['.', '..']));
             } elseif ($cmd === 'cat') {
-                $file = $_GET['arg'] ?? '';
-                if (strpos($file, '..') !== false || !file_exists("../" . $file)) throw new Exception("File not found or Access Denied");
-                $output = file_get_contents("../" . $file);
+                $file_arg = $_GET['arg'] ?? '';
+                // SECURITY FIX: Prevent path traversal using realpath() and whitelisting
+                $base_dir = realpath(__DIR__ . "/..");
+                $requested_file = realpath($base_dir . "/" . $file_arg);
+                
+                $allowed_dirs = [
+                    $base_dir . "/assets",
+                    $base_dir . "/docs",
+                    $base_dir . "/sql"
+                ];
+                
+                $is_allowed = false;
+                if ($requested_file !== false && is_file($requested_file)) {
+                    foreach ($allowed_dirs as $allowed) {
+                        if (strpos($requested_file, $allowed) === 0) {
+                            $is_allowed = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!$is_allowed) throw new Exception("Access Denied: File not allowed or not found");
+                
+                $output = file_get_contents($requested_file);
             } elseif ($cmd === 'sysinfo') {
                 $output = "OS: " . php_uname() . "\nPHP: " . phpversion() . "\nSERVER: " . $_SERVER['SERVER_SOFTWARE'];
             } elseif ($cmd === 'uptime') {

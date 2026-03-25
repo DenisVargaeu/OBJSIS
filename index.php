@@ -12,9 +12,35 @@ if (isset($_GET['exit'])) {
 
 $table_number = $_GET['table'] ?? $_COOKIE['active_table'] ?? null;
 
+// SECURITY FIX: Validate table_number as integer
+if ($table_number !== null) {
+    $table_number = filter_var($table_number, FILTER_VALIDATE_INT);
+    if ($table_number === false) {
+        setcookie('active_table', '', time() - 3600, "/");
+        header("Location: index.php");
+        exit;
+    }
+}
+
+// SECURITY FIX: Validate table_number as integer
+if ($table_number !== null) {
+    $table_number = filter_var($table_number, FILTER_VALIDATE_INT);
+    if ($table_number === false) {
+        setcookie('active_table', '', time() - 3600, "/");
+        header("Location: index.php");
+        exit;
+    }
+}
+
 // Set Table Cookie if provided in URL
-if (isset($_GET['table'])) {
-    setcookie('active_table', $_GET['table'], time() + (86400 * 1), "/"); // 1 day
+if (isset($_GET['table']) && $table_number !== false) {
+    // SECURITY FIX: Use HttpOnly and SameSite flags
+    setcookie('active_table', $_GET['table'], [
+        'expires' => time() + 86400,
+        'path' => '/',
+        'httponly' => true,
+        'samesite' => 'Strict'
+    ]);
 }
 
 // Fetch Active Orders for this table (Status Check)
@@ -41,6 +67,9 @@ if ($table_number) {
 try {
     $stmt = $pdo->query("SELECT * FROM categories ORDER BY sort_order ASC");
     $categories = $stmt->fetchAll();
+
+    // SECURITY FIX: Cache show_menu_photos setting to avoid N+1 queries
+    $show_photos = getSetting('show_menu_photos', '1') === '1';
 
     $menu = [];
     foreach ($categories as $cat) {
@@ -737,13 +766,13 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
 
                             <div class="food-grid">
                                 <?php foreach ($menu[$category['name']] as $item): ?>
-                                    <div class="food-card <?= !$item['is_available'] ? 'sold-out' : '' ?> <?= getSetting('show_menu_photos', '1') !== '1' ? 'no-photo' : '' ?>">
+                                    <div class="food-card <?= !$item['is_available'] ? 'sold-out' : '' ?> <?= !$show_photos ? 'no-photo' : '' ?>">
                                         
                                         <?php if (!$item['is_available']): ?>
                                             <div class="sold-out-badge" data-i18n="sold_out">SOLD OUT</div>
                                         <?php endif; ?>
 
-                                        <?php if (getSetting('show_menu_photos', '1') === '1'): ?>
+                                        <?php if ($show_photos): ?>
                                             <div class="food-img">
                                                 <?php if ($item['image_url']): ?>
                                                     <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="<?= htmlspecialchars($item['name']) ?>" loading="lazy">
@@ -755,7 +784,7 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
                                         <?php endif; ?>
 
                                         <div class="food-info">
-                                            <?php if (getSetting('show_menu_photos', '1') !== '1'): ?>
+                                            <?php if (!$show_photos): ?>
                                                 <div class="price-tag"><?= number_format($item['price'], 2) ?> €</div>
                                             <?php endif; ?>
 
@@ -770,7 +799,8 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
                                             <p class="food-desc"><?= htmlspecialchars($item['description']) ?></p>
 
                                             <?php if ($item['is_available']): ?>
-                                                <button class="add-btn" onclick="addToCart(<?= $item['id'] ?>, '<?= addslashes($item['name']) ?>', <?= $item['price'] ?>)">
+                                                <!-- SECURITY FIX: Replace addslashes() with json_encode() for safe JS input -->
+                                                <button class="add-btn" onclick="addToCart(<?= $item['id'] ?>, <?= htmlspecialchars(json_encode($item['name'])) ?>, <?= $item['price'] ?>)">
                                                     <span data-i18n="add">Add to Order</span> <i class="fas fa-plus"></i>
                                                 </button>
                                             <?php else: ?>
@@ -814,7 +844,7 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
                     const items = order.item_details.split('||');
                     let html = '<ul style="list-style:none; padding:0;">';
                     items.forEach(item => {
-                        html += `<li style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${item}</li>`;
+                        html += `<li style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.05);">${escHTML(item)}</li>`;
                     });
                     html += '</ul>';
                     document.getElementById('od-content').innerHTML = html;
@@ -990,11 +1020,11 @@ $restaurant_name = getSetting('restaurant_name', 'OBJSIS');
                         content.innerHTML = data.orders.map(o => `
                             <div style="padding:15px; border-radius:12px; background:rgba(255,255,255,0.05); border:1px solid var(--border-color); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
                                 <div>
-                                    <div style="font-weight:700; color:var(--text-main);">Order #${o.id}</div>
+                                    <div style="font-weight:700; color:var(--text-main);">Order #${escHTML(o.id.toString())}</div>
                                     <div style="font-size:0.8rem; color:var(--text-muted);">${new Date(o.created_at).toLocaleTimeString()}</div>
                                 </div>
                                 <div style="font-size:0.7rem; padding:4px 10px; border-radius:20px; background: var(--primary-color); color:white; font-weight:800; text-transform:uppercase;">
-                                    ${translations[currentLang]['status_' + o.status] || o.status}
+                                    ${escHTML(translations[currentLang]['status_' + o.status] || o.status)}
                                 </div>
                             </div>
                         `).join('');

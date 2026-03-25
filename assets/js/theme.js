@@ -42,6 +42,15 @@ function toggleTheme() {
     updateThemeIcons();
 }
 
+// SECURITY FIX: Global HTML escaping helper
+function escHTML(s) {
+    if (s === null || s === undefined) return "";
+    const text = document.createTextNode(s);
+    const p = document.createElement('p');
+    p.appendChild(text);
+    return p.innerHTML;
+}
+
 // Apply immediately to prevent flash
 applyTheme();
 document.addEventListener('DOMContentLoaded', applyTheme);

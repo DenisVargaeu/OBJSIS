@@ -14,6 +14,12 @@ if ($_SESSION['user_role'] !== 'admin' && $_SESSION['user_role'] !== 'inventory'
 
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
+// SECURITY FIX: CSRF Validation for state-changing actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !validateCsrfToken($_POST['csrf_token'] ?? '')) {
+    echo json_encode(['success' => false, 'message' => 'CSRF Token Invalid']);
+    exit;
+}
+
 try {
     switch ($action) {
         case 'get_recipe':

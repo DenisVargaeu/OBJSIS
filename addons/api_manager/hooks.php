@@ -48,8 +48,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const copy = document.getElementById("copyApiKey");
     const display = document.getElementById("apiKeyDisplay");
 
-    let realKey = localStorage.getItem("objsis_api_key") || "OBJSIS_" + Math.random().toString(36).substr(2, 16).toUpperCase();
-    if (!localStorage.getItem("objsis_api_key")) localStorage.setItem("objsis_api_key", realKey);
+    let realKey = "";
+
+    async function fetchApiKey(regen = false) {
+        try {
+            const url = regen ? "../api/get_api_key.php?action=regen" : "../api/get_api_key.php?action=get";
+            const res = await fetch(url);
+            const data = await res.json();
+            if (data.success) {
+                realKey = data.api_key;
+                if (display.type === "text") display.value = realKey;
+            }
+        } catch (e) {
+            console.error("Failed to fetch API key", e);
+        }
+    }
+
+    // Initial fetch
+    fetchApiKey();
 
     btn.onclick = (e) => {
         e.stopPropagation();
@@ -73,15 +89,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     copy.onclick = () => {
+        if (!realKey) return alert("API Key not loaded yet.");
         navigator.clipboard.writeText(realKey);
         alert("API Key copied to clipboard!");
     };
 
     regen.onclick = () => {
         if (confirm("Revoke current key and generate new one? This will break existing integrations.")) {
-            realKey = "OBJSIS_" + Math.random().toString(36).substr(2, 16).toUpperCase();
-            localStorage.setItem("objsis_api_key", realKey);
-            if (display.type === "text") display.value = realKey;
+            // SECURITY FIX: Regenerate server-side
+            fetchApiKey(true);
             alert("New API Key generated.");
         }
     };

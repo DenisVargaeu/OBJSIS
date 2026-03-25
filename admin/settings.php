@@ -6,6 +6,10 @@ require_once '../includes/functions.php';
 requireLogin();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // SECURITY FIX: CSRF Validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        die("CSRF Token Invalid");
+    }
     if (isset($_POST['reset_customization'])) {
         $keys_to_reset = ['primary_color', 'primary_hover', 'bg_image_kiosk', 'bg_image_login'];
         $placeholders = str_repeat('?,', count($keys_to_reset) - 1) . '?';
@@ -103,6 +107,8 @@ $page_title = "System Settings";
 
             <div class="glass-card" style="max-width: 800px;">
                 <form method="POST">
+                    <!-- SECURITY FIX: CSRF Token -->
+                    <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                     <h3 style="margin-bottom: 20px; font-size: 1.25rem; font-weight: 700; color: var(--primary-color);"><i class="fas fa-building"></i> General</h3>
                     <div class="form-group">
                         <label for="restaurant_name">Restaurant Name</label>

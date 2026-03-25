@@ -10,8 +10,14 @@ checkPermission('view_orders');
 
 // Handle Rapid Status Update (AJAX or POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
-    $order_id = $_POST['order_id'];
-    $new_status = $_POST['status'];
+    // SECURITY FIX: CSRF Validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        if (isset($_POST['ajax'])) {
+            echo json_encode(['success' => false, 'message' => 'CSRF Token Invalid']);
+            exit;
+        }
+        die("CSRF Token Invalid");
+    }
     $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
     $stmt->execute([$new_status, $order_id]);
     
@@ -201,7 +207,7 @@ $page_title = "Kitchen Display System";
                 return `
                 <div class="kds-card status-${o.status} ${isNew ? 'new-order' : ''}">
                     <div class="kds-header">
-                        <div class="kds-table">T-${o.table_number}</div>
+                        <div class="kds-table">T-${escHTML(o.table_number)}</div>
                         <div class="kds-time ${isUrgent ? 'urgent' : ''}" style="${isUrgent ? 'color:#ef4444' : ''}">
                             ${elapsed}m <i class="fas fa-clock" style="font-size:0.7rem;"></i>
                         </div>
@@ -210,7 +216,7 @@ $page_title = "Kitchen Display System";
                         ${items.map(i => `
                             <div class="item-row">
                                 <div class="item-qty">${i.qty}</div>
-                                <div class="item-name">${i.name}</div>
+                                <div class="item-name">${escHTML(i.name)}</div>
                             </div>
                         `).join('')}
                     </div>

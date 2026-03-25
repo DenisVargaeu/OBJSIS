@@ -99,6 +99,8 @@ $page_title = "Discount Management";
             <div class="glass-card" style="margin-bottom: 40px; padding: 24px;">
                 <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.1rem; font-weight: 700;">Create New Coupon</h3>
                 <form onsubmit="event.preventDefault(); addCoupon(this);" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; align-items: flex-end;">
+                    <!-- SECURITY FIX: CSRF Token -->
+                    <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                     <div class="form-group" style="margin: 0;">
                         <label>Coupon Code</label>
                         <input type="text" name="code" placeholder="e.g. SAVE20" required>
@@ -260,6 +262,8 @@ $page_title = "Discount Management";
             const formData = new FormData();
             formData.append('action', 'delete_coupon');
             formData.append('id', id);
+            // SECURITY FIX: Add CSRF Token
+            formData.append('csrf_token', OBJSIS_CSRF_TOKEN);
 
             fetch('../api/admin_actions.php', { method: 'POST', body: formData })
                 .then(res => res.json())

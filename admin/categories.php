@@ -89,6 +89,8 @@ $page_title = "Category Management";
         <div class="stat-card" style="width: 400px; flex-direction: column; align-items: stretch; padding: 24px;">
             <h3 id="modal-title" style="margin-bottom: 20px; font-size: 1.25rem; font-weight: 700;">Add Category</h3>
             <form id="category-form" onsubmit="event.preventDefault(); submitForm(this);">
+                <!-- SECURITY FIX: CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                 <input type="hidden" name="action" id="form-action" value="add_category">
                 <input type="hidden" name="id" id="cat-id">
                 
@@ -142,6 +144,8 @@ $page_title = "Category Management";
             const formData = new FormData();
             formData.append('action', 'delete_category');
             formData.append('id', id);
+            // SECURITY FIX: Add CSRF Token
+            formData.append('csrf_token', OBJSIS_CSRF_TOKEN);
             fetch('../api/admin_actions.php', { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(res => {

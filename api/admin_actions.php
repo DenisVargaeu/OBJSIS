@@ -11,6 +11,12 @@ header('Content-Type: application/json');
 
 $action = $_POST['action'] ?? '';
 
+// SECURITY FIX: CSRF Validation
+if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+    echo json_encode(['success' => false, 'message' => 'CSRF Token Invalid']);
+    exit;
+}
+
 try {
     switch ($action) {
         // --- MENU ACTIONS ---

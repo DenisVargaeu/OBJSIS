@@ -11,7 +11,16 @@ $user_name = $_SESSION['user_name'] ?? 'Guest';
 
 // Handle Status Update (Allow AJAX)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
-    $order_id = $_POST['order_id'];
+    // SECURITY FIX: CSRF Validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        if (isset($_POST['ajax'])) {
+            echo json_encode(['success' => false, 'message' => 'CSRF Token Invalid']);
+            exit;
+        }
+        die("CSRF Token Invalid");
+    }
+
+    $order_id = (int)$_POST['order_id'];
     $new_status = $_POST['status'];
     
     $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
@@ -161,7 +170,8 @@ $page_title = "Active Orders Management";
                             <ul style="list-style: none; padding: 0; margin: 0;">
                                 ${items.map(i => `
                                     <li style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 1rem; font-weight: 600;">
-                                        <span><strong style="color: var(--primary-color); margin-right: 10px;">${i.qty}x</strong> ${i.name}</span>
+                                        <!-- SECURITY FIX: Use escHTML for user-provided data -->
+                                        <span><strong style="color: var(--primary-color); margin-right: 10px;">${i.qty}x</strong> ${escHTML(i.name)}</span>
                                     </li>
                                 `).join('')}
                             </ul>
@@ -206,6 +216,8 @@ $page_title = "Active Orders Management";
             formData.append('status', status);
             formData.append('update_status', '1');
             formData.append('ajax', '1');
+            // SECURITY FIX: Include CSRF Token in AJAX
+            formData.append('csrf_token', OBJSIS_CSRF_TOKEN);
 
             const res = await fetch('orders.php', { method: 'POST', body: formData });
             const data = await res.json();

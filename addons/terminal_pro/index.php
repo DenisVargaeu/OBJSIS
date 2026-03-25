@@ -173,7 +173,8 @@ if ($_SESSION['user_role'] !== 'admin') {
                 // Add to view
                 const line = document.createElement('div');
                 line.className = 'line';
-                line.innerHTML = `<span class="prompt">objsis@admin:~$</span><span class="command">${rawLine}</span>`;
+                // SECURITY FIX: Use escHTML for user input
+                line.innerHTML = `<span class="prompt">objsis@admin:~$</span><span class="command">${escHTML(rawLine)}</span>`;
                 history.appendChild(line);
 
                 // Execute
@@ -188,7 +189,8 @@ if ($_SESSION['user_role'] !== 'admin') {
                 } else {
                     const out = document.createElement('div');
                     out.className = 'line error';
-                    out.innerHTML = `Command not found: ${cmd}`;
+                    // SECURITY FIX: Use escHTML
+                    out.innerHTML = `Command not found: ${escHTML(cmd)}`;
                     history.appendChild(out);
                 }
 

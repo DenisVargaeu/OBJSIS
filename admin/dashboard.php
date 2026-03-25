@@ -16,8 +16,16 @@ $active_shift = $stmt_shift->fetch();
 
 // Handle Status Update (Allow AJAX)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
-    $order_id = $_POST['order_id'];
-    $new_status = $_POST['status'];
+    // SECURITY FIX: CSRF Validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        if (isset($_POST['ajax'])) {
+            echo json_encode(['success' => false, 'message' => 'CSRF Token Invalid']);
+            exit;
+        }
+        die("CSRF Token Invalid");
+    }
+
+    $order_id = (int)$_POST['order_id'];
     $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
     $stmt->execute([$new_status, $order_id]);
 
@@ -259,7 +267,7 @@ $page_title = "Live Dashboard";
                     <div style="padding: 18px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.015);">
                         <div>
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin: 0;">Table ${o.table_number}</h3>
+                                <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin: 0;">Table ${escHTML(o.table_number)}</h3>
                                 <span style="font-size: 0.65rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--text-muted); font-weight: 700;">#${o.id}</span>
                             </div>
                             <div style="font-size: 0.75rem; color: var(--primary-color); margin-top: 4px; font-weight: 700;">
@@ -275,7 +283,7 @@ $page_title = "Live Dashboard";
                             <ul style="list-style: none; padding: 0; margin: 0;">
                                 ${items.map(i => `
                                     <li style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600; color: var(--text-dim);">
-                                        <span><strong style="color: var(--primary-color); margin-right: 8px;">${i.qty}x</strong> ${i.name}</span>
+                                        <span><strong style="color: var(--primary-color); margin-right: 8px;">${i.qty}x</strong> ${escHTML(i.name)}</span>
                                     </li>
                                 `).join('')}
                             </ul>
@@ -364,7 +372,7 @@ $page_title = "Live Dashboard";
             }
             container.innerHTML = items.map(i => `
                 <div class="top-item-row">
-                    <span style="font-weight: 600; color: var(--text-dim);">${i.name}</span>
+                    <span style="font-weight: 600; color: var(--text-dim);">${escHTML(i.name)}</span>
                     <span style="font-weight: 800; color: var(--primary-color);">${parseInt(i.qty)} sold</span>
                 </div>
             `).join('');
@@ -376,6 +384,8 @@ $page_title = "Live Dashboard";
             formData.append('status', status);
             formData.append('update_status', '1');
             formData.append('ajax', '1');
+            // SECURITY FIX: CSRF Token
+            formData.append('csrf_token', OBJSIS_CSRF_TOKEN);
 
             const res = await fetch('dashboard.php', { method: 'POST', body: formData });
             const data = await res.json();

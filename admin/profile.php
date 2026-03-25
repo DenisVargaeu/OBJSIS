@@ -9,6 +9,10 @@ $msg = null;
 
 // Handle PIN Change
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_pin'])) {
+    // SECURITY FIX: CSRF Validation
+    if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
+        die("CSRF Token Invalid");
+    }
     $current_pin = $_POST['current_pin'];
     $new_pin = $_POST['new_pin'];
     $confirm_pin = $_POST['confirm_pin'];
@@ -102,6 +106,8 @@ $page_title = "My Profile";
                     </div>
 
                     <form method="POST" style="max-width: 500px;">
+                        <!-- SECURITY FIX: CSRF Token -->
+                        <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                         <div class="form-group" style="margin-bottom: 25px;">
                             <label class="form-label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; display: block;">Current Pin</label>
                             <input type="password" name="current_pin" required placeholder="••••" maxlength="8" class="form-control" style="font-size: 1.4rem; letter-spacing: 8px; font-family: monospace;">

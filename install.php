@@ -555,10 +555,14 @@ $step = $_GET['step'] ?? 1;
                     // Insert admin user
                     require_once 'includes/functions.php';
                     $pin_hash = hashPin($admin_pin);
-                    $pdo->exec("INSERT IGNORE INTO users (name, pin_hash, role) VALUES ('$admin_name', '$pin_hash', 'admin')");
+                    // SECURITY FIX: Use prepared statements to prevent SQL injection
+                    $stmt = $pdo->prepare("INSERT IGNORE INTO users (name, pin_hash, role) VALUES (?, ?, 'admin')");
+                    $stmt->execute([$admin_name, $pin_hash]);
 
                     // Insert settings
-                    $pdo->exec("INSERT INTO settings (setting_key, setting_value) VALUES ('restaurant_name', '$restaurant_name') ON DUPLICATE KEY UPDATE setting_value = '$restaurant_name'");
+                    // SECURITY FIX: Use prepared statements to prevent SQL injection
+                    $stmt = $pdo->prepare("INSERT INTO settings (setting_key, setting_value) VALUES ('restaurant_name', ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+                    $stmt->execute([$restaurant_name, $restaurant_name]);
 
                     // Insert sample data
                     $pdo->exec("INSERT IGNORE INTO categories (id, name, sort_order) VALUES 

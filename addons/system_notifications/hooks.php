@@ -47,9 +47,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     <i class="fas ${n.type === "order" ? "fa-shopping-bag" : "fa-check"}"></i>
                 </div>
                 <div style="flex:1;">
-                    <div style="font-size:0.85rem; font-weight:700; margin-bottom:2px;">${n.title}</div>
-                    <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">${n.message}</div>
-                    <div style="font-size:0.65rem; color:var(--primary-color); margin-top:5px; font-weight:800;">${n.time}</div>
+                    <div style="font-size:0.85rem; font-weight:700; margin-bottom:2px;">${escHTML(n.title)}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">${escHTML(n.message)}</div>
+                    <div style="font-size:0.65rem; color:var(--primary-color); margin-top:5px; font-weight:800;">${escHTML(n.time)}</div>
                 </div>
             </div>
         `).join("");
@@ -111,8 +111,8 @@ document.addEventListener("DOMContentLoaded", () => {
         toast.innerHTML = `
             <div style="width:40px; height:40px; background:${bg}; color:${color}; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem;"><i class="fas ${icon}"></i></div>
             <div>
-                <div style="font-weight:800; font-size:0.9rem;">${title}</div>
-                <div style="font-size:0.8rem; opacity:0.7;">${msg}</div>
+                <div style="font-weight:800; font-size:0.9rem;">${escHTML(title)}</div>
+                <div style="font-size:0.8rem; opacity:0.7;">${escHTML(msg)}</div>
             </div>
         `;
         document.body.appendChild(toast);

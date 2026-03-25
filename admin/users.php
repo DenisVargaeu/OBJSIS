@@ -130,6 +130,8 @@ $page_title = "Employee Management";
                 <div class="stat-card card-glass" style="flex-direction: column; align-items: stretch; padding: 24px;">
                     <h3 style="margin-bottom: 20px; font-size: 1.1rem; font-weight: 700;">Add New Employee</h3>
                     <form onsubmit="event.preventDefault(); addUser(this);">
+                        <!-- SECURITY FIX: CSRF Token -->
+                        <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                         <div class="form-group">
                             <label>Full Name</label>
                             <input type="text" name="name" required placeholder="e.g. John Doe">
@@ -166,6 +168,8 @@ $page_title = "Employee Management";
                 </button>
             </div>
             <form onsubmit="event.preventDefault(); submitEditUser(this);">
+                <!-- SECURITY FIX: CSRF Token -->
+                <input type="hidden" name="csrf_token" value="<?= getCsrfToken() ?>">
                 <input type="hidden" name="id" id="edit-id">
                 <div class="form-group">
                     <label>Full Name</label>
@@ -209,6 +213,8 @@ $page_title = "Employee Management";
             const formData = new FormData();
             formData.append('action', 'delete_user');
             formData.append('id', id);
+            // SECURITY FIX: Add CSRF Token
+            formData.append('csrf_token', OBJSIS_CSRF_TOKEN);
 
             fetch('../api/admin_actions.php', { method: 'POST', body: formData })
                 .then(res => res.json())

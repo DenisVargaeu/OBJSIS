@@ -46,8 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <a href="${r.url}" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:15px; padding:12px; border-radius:12px; background:rgba(255,255,255,0.03);">
                     <div style="width:30px; text-align:center;"><i class="fas ${r.icon}" style="color:var(--primary-color);"></i></div>
                     <div style="flex:1;">
-                        <div style="font-weight:700;">${r.title}</div>
-                        <div style="font-size:0.8rem; opacity:0.6;">${r.subtitle}</div>
+                        <div style="font-weight:700;">${escHTML(r.title)}</div>
+                        <div style="font-size:0.8rem; opacity:0.6;">${escHTML(r.subtitle)}</div>
                     </div>
                 </a>
             `).join("") || `<div style="text-align:center; opacity:0.5; padding:20px;">No matches found</div>`;
