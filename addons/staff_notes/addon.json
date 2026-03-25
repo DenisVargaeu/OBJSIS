@@ -1,0 +1,7 @@
+{
+    "name": "Staff Notes",
+    "version": "1.0.0",
+    "description": "A persistent glassmorphic scratchpad for staff to leave quick messages and reminders.",
+    "author": "Antigravity",
+    "icon": "fa-sticky-note"
+}

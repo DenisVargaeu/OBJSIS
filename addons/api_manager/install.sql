@@ -1,0 +1,24 @@
+CREATE TABLE IF NOT EXISTS api_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    api_key VARCHAR(100) NOT NULL,
+    endpoint VARCHAR(100) NOT NULL,
+    user_ip VARCHAR(50),
+    status_code INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS api_keys (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    key_name VARCHAR(100) NOT NULL,
+    api_key VARCHAR(100) NOT NULL UNIQUE,
+    scopes TEXT, -- JSON or comma-separated list of permissions
+    is_active BOOLEAN DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS api_whitelist (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip_address VARCHAR(50) NOT NULL UNIQUE,
+    label VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

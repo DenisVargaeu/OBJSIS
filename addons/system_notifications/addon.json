@@ -1,0 +1,7 @@
+{
+    "name": "System Notifications",
+    "version": "1.0.0",
+    "description": "Real-time alerts and activity feed for orders and system events.",
+    "author": "Antigravity",
+    "icon": "fa-bell"
+}

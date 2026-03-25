@@ -1,0 +1,7 @@
+{
+    "name": "System Health",
+    "version": "1.0.0",
+    "description": "Monitor server resources, database size, and PHP system environment.",
+    "author": "Antigravity",
+    "icon": "fa-heart-pulse"
+}

@@ -1,0 +1,7 @@
+{
+    "name": "API Manager",
+    "version": "1.0.0",
+    "description": "Securely expose your restaurant data to 3rd party applications with API key management.",
+    "author": "Antigravity",
+    "icon": "fa-key"
+}

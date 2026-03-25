@@ -1,0 +1,7 @@
+{
+    "name": "Voice Control",
+    "version": "1.0.0",
+    "description": "Control your admin panel with your voice. Supports commands like 'Dashboard', 'Kitchen', 'Search', and 'Logout'.",
+    "author": "Antigravity",
+    "icon": "fa-microphone"
+}

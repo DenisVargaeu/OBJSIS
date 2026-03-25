@@ -1,6 +1,7 @@
 <?php
 // includes/functions.php
 require_once dirname(__DIR__) . '/config/version.php';
+require_once __DIR__ . '/addon_loader.php';
 
 session_start();
 

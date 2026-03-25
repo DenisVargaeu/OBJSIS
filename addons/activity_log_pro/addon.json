@@ -1,0 +1,7 @@
+{
+    "name": "Activity Log Pro",
+    "version": "1.0.0",
+    "description": "Track all administrative actions, logins, and system changes in a central audit log.",
+    "author": "Antigravity",
+    "icon": "fa-list-check"
+}

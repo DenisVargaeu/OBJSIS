@@ -1,0 +1,7 @@
+{
+    "name": "Global Search",
+    "version": "1.0.0",
+    "description": "Powerful instant search for orders, menu items, staff, and settings. Injects a search icon into the top navigation bar.",
+    "author": "Antigravity",
+    "icon": "fa-magnifying-glass"
+}

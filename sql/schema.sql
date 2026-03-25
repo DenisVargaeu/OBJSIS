@@ -278,4 +278,20 @@ CREATE TABLE IF NOT EXISTS `inventory_logs` (
   CONSTRAINT `inventory_logs_ibfk_1` FOREIGN KEY (`inventory_id`) REFERENCES `inventory` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- --------------------------------------------------------
+-- 16. ADDONS
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `addons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `addon_id` varchar(100) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `version` varchar(20) DEFAULT '1.0.0',
+  `description` text DEFAULT NULL,
+  `author` varchar(100) DEFAULT NULL,
+  `is_enabled` tinyint(1) DEFAULT 0,
+  `installed_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `addon_id` (`addon_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 COMMIT;

@@ -1,0 +1,7 @@
+{
+    "name": "Quick Actions",
+    "version": "1.0.0",
+    "description": "A floating speed-dial for common administrative tasks like New Order, Refund, and Print Receipt.",
+    "author": "Antigravity",
+    "icon": "fa-bolt"
+}

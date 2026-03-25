@@ -1,0 +1,7 @@
+{
+    "name": "Multi-Currency Switcher",
+    "version": "1.0.0",
+    "description": "Convert prices in real-time to USD, GBP, or HUF for international guests.",
+    "author": "Antigravity",
+    "icon": "fa-coins"
+}

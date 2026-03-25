@@ -1,0 +1,7 @@
+{
+    "name": "Terminal Pro",
+    "version": "1.0.0",
+    "description": "A high-fidelity terminal interface for monitoring system stats and activity with a hacker-style aesthetic.",
+    "author": "Antigravity",
+    "icon": "fa-terminal"
+}

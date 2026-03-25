@@ -81,10 +81,28 @@ function isActive($page, $current)
                 <?php if (hasPermission('reports.php')): ?><li><a href="reports.php"><i class="fas fa-file-invoice"></i> Reports</a></li><?php endif; ?>
                 <?php if (hasPermission('history.php')): ?><li><a href="history.php"><i class="fas fa-history"></i> History</a></li><?php endif; ?>
                 <?php if (hasPermission('updates.php')): ?><li><a href="updates.php"><i class="fas fa-sync"></i> Updates</a></li><?php endif; ?>
+                <?php if (hasPermission('manage_system')): ?><li><a href="addons.php"><i class="fas fa-puzzle-piece"></i> Addons</a></li><?php endif; ?>
                 <?php if (hasPermission('settings.php')): ?><li><a href="settings.php"><i class="fas fa-cog"></i> Settings</a></li><?php endif; ?>
+                <?php 
+                    if (isset($GLOBALS['addon_system_links'])) {
+                        foreach ($GLOBALS['addon_system_links'] as $link) {
+                            echo "<li>$link</li>";
+                        }
+                    }
+                ?>
             </ul>
         </li>
     </ul>
+    
+    <div class="addon-navbar-items" style="display:flex; align-items:center;">
+        <?php 
+            if (isset($GLOBALS['addon_navbar_items'])) {
+                foreach ($GLOBALS['addon_navbar_items'] as $item) {
+                    echo $item;
+                }
+            }
+        ?>
+    </div>
 
     <div class="navbar-user">
         <button onclick="toggleTheme()" class="theme-toggle" title="Toggle Theme">
