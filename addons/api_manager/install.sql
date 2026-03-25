@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS api_keys (
     id INT AUTO_INCREMENT PRIMARY KEY,
     key_name VARCHAR(100) NOT NULL,
     api_key VARCHAR(100) NOT NULL UNIQUE,
-    scopes TEXT, -- JSON or comma-separated list of permissions
     is_active BOOLEAN DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

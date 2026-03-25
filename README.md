@@ -1,27 +1,24 @@
-
 # 🍽️ OBJSIS V2 - Restaurant Management System
 
-![Version](https://img.shields.io/badge/version-2.5.0-orange)
+![Version](https://img.shields.io/badge/version-2.6.0-orange)
 ![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue)
 ![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-blue)
 ![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-red)
 
 
-A comprehensive, modern restaurant management system with order tracking, employee management, inventory control, and customer-facing kiosk interface.
+A comprehensive, modern restaurant management system with order tracking, employee management, inventory control, and a powerful **Modular Addon Ecosystem**.
 
-## ✨ Features (v2.5.0 Highlight)
+## ✨ Features (v2.6.0 Highlight)
 
-* 📊 **Real-time AJAX Dashboard** - Flicker-free data updates with interactive **Chart.js** analytics.
+* 🔌 **Modular Addon Ecosystem** - Easily extend the system with one-click installable plugins.
+* 🔑 **API Manager PRO** - Enterprise-grade API with multi-key management and IP whitelisting.
+* 💻 **Terminal Pro Ultra** - Full-screen interactive CLI with system monitoring and boot sequence.
+* 🔔 **System Notifications** - Real-time alerts for new orders and low stock (via inventory logs).
+* 📊 **Real-time Dashboard** - Flicker-free data updates with interactive **Chart.js** analytics.
 * 👨‍🍳 **Elite KDS (Kitchen Display System)** - High-visibility "Kitchen Mode" with urgency color-coding and audio alerts.
 * 🌓 **V2 Theme Engine** - Premium Glassmorphic design across all 15+ administrative pages.
-* 🔔 **Live Navigation Badges** - Global real-time order count indicators in the sidebar.
-* 🔐 **Secure PIN-based login** with role management (Admin, Cook, Waiter, Manager).
-* 📱 **Customer kiosk** for self-service ordering with category-based navigation.
-* 🍔 **Dynamic menu management** with categories and availability toggle.
-* 🎟️ **Advanced coupon system** with expiration dates and usage limits.
-* 🧾 **Receipt generation** and printing.
-* 📉 **Business Intelligence** - Detailed sales reports and inventory stock tracking.
-* 🔄 **Built-in Updater** - One-click system updates and patching.
+* 🪙 **Multi-Currency** - Real-time price conversion for international guests (EUR, USD, GBP, HUF).
+* ⚡ **Quick Actions** - Floating speed-dial for the most frequent administrative tasks.
 
 ---
 
@@ -36,7 +33,6 @@ A comprehensive, modern restaurant management system with order tracking, employ
 ### Installation Steps
 
 1. **Place files in XAMPP directory**
-
    ```
    C:\xampp\htdocs\objsis-v2\
    ```
@@ -49,7 +45,6 @@ A comprehensive, modern restaurant management system with order tracking, employ
    $password = '';
    ```
 3. **Create database user** (in phpMyAdmin or MySQL console)
-
    ```sql
    CREATE DATABASE objsis_v2;
    CREATE USER 'main_app'@'localhost';
@@ -57,16 +52,7 @@ A comprehensive, modern restaurant management system with order tracking, employ
    FLUSH PRIVILEGES;
    ```
 4. **Run the installer** at: `http://localhost/objsis-v2/install.php`
-
-   * Creates tables
-   * Inserts default admin PIN `1234`
-   * Sets up sample data
-5. **Delete installer** for security (`install.php`)
-6. **Login and configure**
-
-   * PIN: `1234`
-   * Change admin PIN
-   * Configure restaurant name
+5. **Enable Addons**: Visit `admin/addons.php` to activate new modules.
 
 ---
 
@@ -75,10 +61,11 @@ A comprehensive, modern restaurant management system with order tracking, employ
 ```
 OBJSIS V2/
 ├── admin/              # Modernized admin panel pages
+├── addons/             # Modular extension system (NEW)
 ├── api/                # Real-time backend API (AJAX)
 ├── assets/             # CSS (Glassmorphism), JS, Charts
 ├── includes/           # Functions & Layout helpers
-├── sql/                # Database schema (v2.5.0)
+├── sql/                # Database schema (v2.6.0)
 └── index.php           # Customer kiosk
 ```
 
@@ -86,7 +73,7 @@ OBJSIS V2/
 
 ## 👥 User Roles
 
-* **Admin**: Full access, manage employees/menu/tables/coupons, view BI stats
+* **Admin**: Full access, manage addons, keys, employees, menu, tables, view BI stats
 * **Cook**: Specialized KDS view with urgency alerts
 * **Waiter**: Take/update orders with live status feedback
 * **Manager**: Manage stock, recipes, and detailed reports
@@ -95,10 +82,10 @@ OBJSIS V2/
 
 ## 🔐 Security Notes
 
-* Change default admin PIN immediately
-* Delete installer after setup
-* Keep database credentials secure
-* Use HTTPS in production
+* Manage API keys securely in the **API Manager**.
+* Use **IP Whitelisting** to restrict external access.
+* Change default admin PIN immediately.
+* Delete installer after setup.
 
 ---
 
@@ -113,17 +100,17 @@ This source code may **not** be copied, modified, or distributed without explici
 
 ## 🗺️ Roadmap (Updated)
 
-**Phase 6 (Current Focus)**
+**Phase 7 (Next Focus)**
 
-* [x] Real-time Dashboard (AJAX)
-* [x] Kitchen Display System (KDS)
-* [x] Advanced Business Intelligence (Charts)
-* [x] Global Sidebar Badges
+* [x] Modular Addon System
+* [x] Enterprise API Integrations
+* [x] Advanced System Terminal
 * [ ] Training mode logic
 * [ ] Multi-language support (SK, EN, DE) - *Structural prep complete*
 
 **History (Completed)**
 
+* [x] Real-time Dashboard & KDS
 * [x] Inventory management & Recipe deduction
 * [x] V2 Glassmorphic Theme Engine
 * [x] Built-in Software Updater
