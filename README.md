@@ -178,6 +178,7 @@ OBJSIS V2/
 │   ├── api_manager/
 │   ├── global_search/
 │   ├── kds_pro/
+│   ├── maintenance_mode/
 │   ├── multi_currency/
 │   ├── quick_actions/
 │   ├── staff_notes/
@@ -401,6 +402,7 @@ Customize colors in `assets/css/theme-v2.css`:
 | 🔔 **System Notifications** | Real-time in-app alerts & notifications |
 | 💻 **Terminal PRO** | Full-screen system terminal & diagnostics |
 | 🎤 **Voice Control** | Voice-command support for hands-free operation |
+| 🔧 **Maintenance Mode** | Block non-admin users, schedule downtime, content updates |
 
 ---
 
