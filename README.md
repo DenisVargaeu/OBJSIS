@@ -147,66 +147,102 @@ chmod 644 config/db.php
 ```
 OBJSIS V2/
 │
-├── 📂 admin/                          # Admin Dashboard
-│   ├── dashboard.php                 # Main analytics hub
-│   ├── addons.php                    # Addon marketplace
-│   ├── api-manager.php               # API key management
-│   ├── terminal.php                  # System terminal
-│   ├── employees.php                 # Staff management
-│   ├── menu.php                      # Menu & pricing
-│   ├── tables.php                    # Table layout
-│   ├── inventory.php                 # Stock tracking
-│   ├── orders.php                    # Order management
-│   └── reports.php                   # Analytics & reports
+├── 📂 admin/ # Admin Dashboard
+│   ├── dashboard.php    # Main analytics hub
+│   ├── addons.php       # Addon management
+│   ├── settings.php     # System configuration
+│   ├── menu.php         # Menu & item management
+│   ├── orders.php       # Order management
+│   ├── new_order.php    # Create new order
+│   ├── tables.php       # Table management
+│   ├── inventory.php    # Inventory & Stock
+│   ├── recipes.php      # Recipe management
+│   ├── users.php        # Staff management
+│   ├── employees.php    # Employee management
+│   ├── shifts.php       # Shift management
+│   ├── kitchen.php      # Kitchen Display (KDS)
+│   ├── reports.php      # Analytics & reports
+│   ├── coupons.php      # Coupon management
+│   ├── categories.php   # Menu categories
+│   ├── history.php      # Order history
+│   ├── import_menu.php  # Menu import
+│   ├── profile.php      # User profile
+│   ├── receipt.php      # Receipt generation
+│   ├── print_coupon.php # Print coupons
+│   ├── stats.php        # Statistics
+│   └── updates.php      # Software updates
 │
-├── 📂 addons/                        # Plugin System
-│   ├── notifications/                # Real-time alerts addon
-│   ├── training-mode/                # Training environment
-│   ├── multi-language/               # i18n addon
-│   └── custom-addons/                # Community addons
+├── 📂 addons/ # Plugin System
+│   ├── activity_log_pro/
+│   ├── analytics_pro/
+│   ├── api_manager/
+│   ├── global_search/
+│   ├── kds_pro/
+│   ├── multi_currency/
+│   ├── quick_actions/
+│   ├── staff_notes/
+│   ├── system_health/
+│   ├── system_info/
+│   ├── system_notifications/
+│   ├── terminal_pro/
+│   └── voice_control/
 │
-├── 📂 api/                           # REST API Endpoints
-│   ├── v2/
-│   │   ├── orders.php               # Order operations
-│   │   ├── inventory.php            # Stock management
-│   │   ├── analytics.php            # Business metrics
-│   │   └── auth.php                 # API authentication
-│   └── middleware/                  # Rate limiting, validation
+├── 📂 api/ # API Endpoints
+│   ├── addons.php
+│   ├── addons_api.php
+│   ├── admin_actions.php
+│   ├── check_coupon.php
+│   ├── create_order.php
+│   ├── dashboard_fetch.php
+│   ├── get_active_orders_fragment.php
+│   ├── get_api_key.php
+│   ├── import_actions.php
+│   ├── inventory_logs.php
+│   ├── kitchen_fetch.php
+│   ├── migrate_inventory.php
+│   ├── mock_update_server.php
+│   ├── order_status.php
+│   ├── order_status_update.php
+│   ├── recipe_actions.php
+│   ├── shift_actions.php
+│   ├── software_update.php
+│   └── verify_coupon.php
 │
-├── 📂 assets/                        # Static Resources
+├── 📂 assets/ # Static Resources
 │   ├── css/
-│   │   ├── main.css                 # Core styles
-│   │   ├── theme-v2.css             # Glassmorphic theme
-│   │   └── responsive.css           # Mobile-first design
-│   ├── js/
-│   │   ├── dashboard.js             # Dashboard logic
-│   │   ├── notifications.js         # Real-time updates
-│   │   ├── chart-init.js            # Chart.js setup
-│   │   └── utils.js                 # Helper functions
-│   └── img/                         # Logos & icons
+│   │   ├── style.css           # Core styles
+│   │   ├── kiosk_improvements.css
+│   │   ├── page_coupons.css
+│   │   ├── page_menu.css
+│   │   ├── page_shifts.css
+│   │   ├── page_stats.css
+│   │   ├── page_tables.css
+│   │   └── page_users.css
+│   └── js/
+│       ├── app.js    # Main application logic
+│       └── theme.js  # Theme management
 │
-├── 📂 includes/                      # Core Functions
-│   ├── config.php                   # System config
-│   ├── db.php                       # Database handler
-│   ├── functions.php                # Helper functions
-│   ├── Session.php                  # Session management
-│   ├── Auth.php                     # Authentication
-│   ├── Logger.php                   # Event logging
-│   └── Addon.php                    # Addon loader
+├── 📂 includes/ # Core Functions
+│   ├── functions.php      # Helper functions
+│   ├── addon_loader.php   # Addon system loader
+│   ├── addon_helper.php   # Addon helper utilities
+│   ├── sidebar.php        # Sidebar rendering
+│   └── updater_helper.php # Update system helper
 │
-├── 📂 sql/                          # Database Files
-│   ├── schema-v2.6.0.sql            # Full schema
-│   ├── migrations/                  # Migration scripts
-│   └── sample-data.sql              # Demo data
+├── 📂 config/ # System Configuration
+│   └── version.php        # Version & build info
 │
-├── 🔧 config/
-│   ├── db.php                       # DB credentials
-│   ├── settings.php                 # App settings
-│   └── constants.php                # System constants
+├── 📂 sql/ # Database Files
+│   └── schema.sql         # Full database schema
 │
-├── install.php                      # Setup wizard (delete after setup)
-├── index.php                        # Customer kiosk
-└── README.md                        # Documentation
+├── 📂 docs/ # Documentation
+│   ├── RELEASE_NOTES.md
+│   └── development_plan.txt
+│
+├── login.php              # Login page
+├── logout.php             # Logout handler
+├── install.php            # Setup wizard (delete after setup)
+└── index.php              # Application entry point
 ```
 
 ---
