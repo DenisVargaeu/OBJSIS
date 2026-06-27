@@ -384,25 +384,23 @@ Customize colors in `assets/css/theme-v2.css`:
 
 ## 🧩 Addon System
 
-### Install an Addon
+### Available Addons
 
-```bash
-# Upload addon to: addons/my-addon/
-# Structure:
-addons/my-addon/
-├── manifest.json
-├── addon.php
-├── assets/
-└── views/
-```
-
-### Activate Addon
-1. Admin → Settings → Addons
-2. Find addon in list
-3. Click **Install & Activate**
-
-### Create Custom Addon
-See `/addons/example-addon/` for template structure.
+| Addon | Description |
+|---------|-------------|
+| 🔥 **Activity Log PRO** | Comprehensive event logging & audit trail |
+| 📊 **Analytics PRO** | Advanced business analytics & reporting |
+| 🔑 **API Manager** | REST API key management with IP whitelisting |
+| 🔍 **Global Search** | Unified search across orders, menu, staff |
+| 👨‍🍳 **KDS PRO** | Kitchen Display System with audio alerts |
+| 💱 **Multi Currency** | Real-time price conversion (EUR, USD, GBP, HUF) |
+| ⚡ **Quick Actions** | Floating speed-dial for frequent admin tasks |
+| 📝 **Staff Notes** | Internal notes & memo system for employees |
+| 🩺 **System Health** | Server & system diagnostics monitoring |
+| ℹ️ **System Info** | Environment & configuration overview |
+| 🔔 **System Notifications** | Real-time in-app alerts & notifications |
+| 💻 **Terminal PRO** | Full-screen system terminal & diagnostics |
+| 🎤 **Voice Control** | Voice-command support for hands-free operation |
 
 ---
 
