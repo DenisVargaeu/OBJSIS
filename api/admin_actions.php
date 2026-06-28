@@ -198,13 +198,34 @@ case 'update_role_permissions':
             echo json_encode(['success' => true]);
             break;
 
-        case 'delete_table':
-            checkPermission('manage_orders');
-            $id = $_POST['id'];
-            $stmt = $pdo->prepare("DELETE FROM tables WHERE id = ?");
-            $stmt->execute([$id]);
-            echo json_encode(['success' => true]);
-            break;
+case 'delete_table':
+  checkPermission('manage_orders');
+  $id = $_POST['id'];
+  $stmt = $pdo->prepare("DELETE FROM tables WHERE id = ?");
+  $stmt->execute([$id]);
+  echo json_encode(['success' => true]);
+  break;
+
+case 'update_table_status':
+  checkPermission('manage_orders');
+  $id = $_POST['id'];
+  $status = $_POST['status'];
+  $allowed = ['free','occupied','reserved'];
+  if (!in_array($status, $allowed, true)) {
+    echo json_encode(['success' => false, 'message' => 'Invalid status']);
+    break;
+  }
+  $stmt = $pdo->prepare("UPDATE tables SET status = ? WHERE id = ?");
+  $stmt->execute([$status, $id]);
+  echo json_encode(['success' => true]);
+  break;
+
+case 'delete_table_status':
+  checkPermission('manage_orders');
+  $id = $_POST['id'];
+  $pdo->prepare("UPDATE tables SET status = 'free' WHERE id = ?")->execute([$id]);
+  echo json_encode(['success' => true]);
+  break;
 
         // --- CATEGORY ACTIONS ---
         case 'add_category':
