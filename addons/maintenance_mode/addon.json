@@ -1,0 +1,7 @@
+{
+  "name": "Maintenance Mode",
+  "version": "1.0.0",
+  "description": "Put the system in maintenance mode, blocking non-admin users while allowing admins to access the system. Customize maintenance message and allowed IPs.",
+  "author": "System Admin",
+  "icon": "fa-wrench"
+}

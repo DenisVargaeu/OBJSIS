@@ -106,7 +106,49 @@ try {
             echo json_encode(['success' => true]);
             break;
 
-        // --- COUPON ACTIONS ---
+        // --- ROLE ACTIONS ---
+case 'add_role':
+  checkPermission('manage_roles');
+  $rname = strtolower(trim($_POST['role_name']));
+  $dname = trim($_POST['display_name']);
+  if (empty($dname)) $dname = ucfirst($rname);
+  $stmt = $pdo->prepare("INSERT INTO roles (name, display_name) VALUES (?, ?)");
+  $stmt->execute([$rname, $dname]);
+  echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+  break;
+
+case 'edit_role':
+  checkPermission('manage_roles');
+  $id = $_POST['id'];
+  $dname = trim($_POST['display_name']);
+  $stmt = $pdo->prepare("UPDATE roles SET display_name = ? WHERE id = ?");
+  $stmt->execute([$dname, $id]);
+  echo json_encode(['success' => true]);
+  break;
+
+case 'delete_role':
+  checkPermission('manage_roles');
+  $id = $_POST['id'];
+  $pdo->prepare("DELETE FROM role_permissions WHERE role_id = ?")->execute([$id]);
+  $pdo->prepare("UPDATE users SET role_id = NULL WHERE role_id = ?")->execute([$id]);
+  $pdo->prepare("DELETE FROM roles WHERE id = ?")->execute([$id]);
+  echo json_encode(['success' => true]);
+  break;
+
+case 'update_role_permissions':
+  checkPermission('manage_roles');
+  $role_id = $_POST['role_id'];
+  $perm_ids = $_POST['permission_ids'] ?? [];
+  if (!is_array($perm_ids)) $perm_ids = [];
+  $pdo->prepare("DELETE FROM role_permissions WHERE role_id = ?")->execute([$role_id]);
+  $stmt_ins = $pdo->prepare("INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)");
+  foreach ($perm_ids as $pid) {
+    $stmt_ins->execute([$role_id, $pid]);
+  }
+  echo json_encode(['success' => true]);
+  break;
+
+// --- COUPON ACTIONS ---
         case 'add_coupon':
             checkPermission('manage_menu');
             $code = strtoupper($_POST['code']);

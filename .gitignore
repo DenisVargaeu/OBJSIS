@@ -1,5 +1,11 @@
 # OBJSIS V2 - Git Ignore File
 
+RELEASE_NOTES.md
+development_plan.txt
+del.php
+db.php
+
+
 # Database Configuration (contains credentials)
 config/db.php
 
