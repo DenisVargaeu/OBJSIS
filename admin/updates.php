@@ -111,12 +111,16 @@ $page_title = "System Maintenance";
                     </div>
                 </div>
 
-                <div id="update-progress" class="update-box" style="display: none; padding: 100px 40px;">
-                    <div class="progress-indicator"></div>
-                    <h2 style="font-weight: 900;">INSTALLING PATCH</h2>
-                    <p style="color: var(--text-muted); font-size: 1.1rem;">Writing files and updating database schema...</p>
-                    <p style="color: var(--primary-color); font-weight: 700; font-size: 0.8rem; margin-top: 20px;">PLEASE DO NOT REFRESH THIS PAGE</p>
-                </div>
+<div id="update-progress" class="update-box" style="display:none; padding:40px;">
+  <div class="progress-indicator"></div>
+  <h2 id="progress-step" style="font-weight:900;">INSTALLING PATCH</h2>
+  <p id="progress-detail" style="color:var(--text-muted); font-size:1rem;">Please do not refresh this page</p>
+  <div id="progress-bar-wrap" style="max-width:400px; margin:20px auto; height:6px; background:rgba(255,255,255,0.06); border-radius:10px; overflow:hidden;">
+    <div id="progress-bar-fill" style="height:100%; width:0%; background:var(--primary-color); border-radius:10px; transition:width 0.4s ease;"></div>
+  </div>
+  <p style="color:var(--primary-color); font-weight:700; font-size:0.8rem; margin-top:10px;">PLEASE DO NOT REFRESH THIS PAGE</p>
+  <div id="progress-log" style="text-align:left; background:rgba(0,0,0,0.2); padding:15px 20px; border-radius:12px; margin-top:20px; font-family:monospace; font-size:0.82rem; color:var(--text-muted); max-height:200px; overflow-y:auto;"></div>
+</div>
 
                 <div id="update-success" class="update-box" style="display: none; padding: 100px 40px;">
                     <div style="font-size: 5rem; color: var(--success); margin-bottom: 30px;">
@@ -137,67 +141,106 @@ $page_title = "System Maintenance";
         </main>
     </div>
 
-    <script>
-        let latestUpdateInfo = null;
+<script>
+let latestUpdateInfo = null;
+let currentStep = 0;
+const TOTAL_STEPS = 5;
+let progressLogLines = [];
 
-        function checkUpdate() {
-            const btn = document.getElementById('check-btn');
-            btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> Communicating with Cloud...';
-            btn.disabled = true;
+function checkUpdate() {
+  const btn = document.getElementById('check-btn');
+  btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> Communicating with Cloud...';
+  btn.disabled = true;
 
-            fetch('../api/software_update.php?action=check_update')
-                .then(res => res.json())
-                .then(res => {
-                    btn.innerHTML = '<i class="fas fa-search" style="margin-right: 10px;"></i> Check for Updates';
-                    btn.disabled = false;
-
-                    if (res.success) {
-                        if (res.has_update) {
-                            latestUpdateInfo = res;
-                            document.getElementById('check-section').style.display = 'none';
-                            document.getElementById('update-details').style.display = 'block';
-                            document.getElementById('new-version').innerText = res.latest_version;
-                            document.getElementById('changelog').innerText = res.notes;
-                        } else {
-                            alert('Váš systém je aktuálny! (v' + res.current_version + ')');
-                        }
-                    } else {
-                        alert('Check failed: ' + res.message);
-                    }
-                })
-                .catch(err => {
-                    alert('Error connecting to update server');
-                    btn.disabled = false;
-                });
+  fetch('../api/software_update.php?action=check_update')
+    .then(res => res.json())
+    .then(res => {
+      btn.innerHTML = '<i class="fas fa-search" style="margin-right: 10px;"></i> Check for Updates';
+      btn.disabled = false;
+      if (res.success) {
+        if (res.has_update) {
+          latestUpdateInfo = res;
+          document.getElementById('check-section').style.display = 'none';
+          document.getElementById('update-details').style.display = 'block';
+          document.getElementById('new-version').innerText = res.latest_version;
+          document.getElementById('changelog').innerText = res.notes;
+        } else {
+          alert('Váš systém je aktuálny! (v' + res.current_version + ')');
         }
+      } else {
+        alert('Check failed: ' + res.message);
+      }
+    })
+    .catch(() => {
+      alert('Error connecting to update server');
+      btn.disabled = false;
+    });
+}
 
-        function confirmUpdate() {
-            if (!confirm('Confirm installation of version ' + latestUpdateInfo.latest_version + '? \nInternal data backup will be initiated.')) return;
+function confirmUpdate() {
+  if (!confirm('Confirm installation of version ' + latestUpdateInfo.latest_version + '?\\nInternal data backup will be initiated.')) return;
 
-            document.getElementById('update-details').style.display = 'none';
-            document.getElementById('update-progress').style.display = 'block';
+  document.getElementById('update-details').style.display = 'none';
+  document.getElementById('update-progress').style.display = 'block';
+  progressLogLines = [];
+  currentStep = 1;
+  runNextStep();
+}
 
-            const formData = new FormData();
-            formData.append('action', 'start_update');
+function appendLog(msg) {
+  progressLogLines.push('▸ ' + msg);
+  document.getElementById('progress-log').innerText = progressLogLines.join('\n');
+  document.getElementById('progress-log').scrollTop = document.getElementById('progress-log').scrollHeight;
+}
 
-            fetch('../api/software_update.php', { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(res => {
-                    document.getElementById('update-progress').style.display = 'none';
-                    if (res.success) {
-                        document.getElementById('update-success').style.display = 'block';
-                        document.getElementById('success-msg').innerText = res.message;
-                    } else {
-                        document.getElementById('update-details').style.display = 'block';
-                        alert('Patch failed: ' + res.message);
-                    }
-                })
-                .catch(err => {
-                    document.getElementById('update-progress').style.display = 'none';
-                    alert('Connection lost during update. Check server logs.');
-                });
-        }
-    </script>
+function setProgress(pct, stepText, detailText) {
+  document.getElementById('progress-bar-fill').style.width = pct + '%';
+  document.getElementById('progress-step').innerText = stepText;
+  document.getElementById('progress-detail').innerText = detailText;
+}
+
+function runNextStep() {
+  if (currentStep > TOTAL_STEPS) {
+    setProgress(100, 'COMPLETE', 'Refreshing…');
+    setTimeout(() => location.reload(), 1500);
+    return;
+  }
+  appendLog('Step ' + currentStep + '/' + TOTAL_STEPS + ' — starting…');
+  setProgress(Math.round((currentStep - 1) / TOTAL_STEPS * 100), 'WORKING…', 'Step ' + currentStep + ' of ' + TOTAL_STEPS);
+
+  const fd = new FormData();
+  fd.append('action', 'update_step');
+  fd.append('step', currentStep);
+  if (latestUpdateInfo) {
+    fd.append('url', latestUpdateInfo.url || '');
+    fd.append('sql_url', latestUpdateInfo.sql_url || '');
+  }
+  fd.append('csrf_token', OBJSIS_CSRF_TOKEN);
+
+  fetch('../api/software_update.php', { method: 'POST', body: fd })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        appendLog('Step ' + currentStep + ': ' + (res.message || 'Done'));
+        if (res.step && !res.skipped) appendLog('Files: ' + (res.files_updated || 'updated'));
+        setProgress(Math.round(currentStep / TOTAL_STEPS * 100), 'Step ' + currentStep + ' complete', '');
+        currentStep++;
+        setTimeout(runNextStep, 500);
+      } else {
+        appendLog('ERROR: ' + res.message);
+        setProgress(Math.round((currentStep - 1) / TOTAL_STEPS * 100), 'FAILED', res.message);
+        document.getElementById('progress-detail').style.color = '#ef4444';
+        document.getElementById('progress-detail').innerText = res.message;
+        document.getElementById('progress-bar-fill').style.background = '#ef4444';
+      }
+    })
+    .catch(err => {
+      appendLog('CONNECTION LOST');
+      setProgress(0, 'CONNECTION LOST', 'Will retry in 3 seconds…');
+      setTimeout(runNextStep, 3000);
+    });
+}
+</script>
     <script src="../assets/js/theme.js"></script>
 </body>
 </html>

@@ -6,14 +6,11 @@ require_once '../includes/functions.php';
 requireLogin();
 checkPermission('new_order.php');
 
-// Fetch all tables
-$tables = [];
-try {
-    $stmt = $pdo->query("SELECT * FROM tables ORDER BY id");
-    $tables = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (Exception $e) {
-    $tables = [];
-}
+// Fetch sections with free table counts
+$sections = $pdo->query("SELECT s.*, COUNT(t.id) as free_tables FROM sections s LEFT JOIN tables t ON t.section_id = s.id AND t.status = 'free' GROUP BY s.id ORDER BY s.sort_order, s.id")->fetchAll();
+
+// Fetch all tables with section info
+$tables_raw = $pdo->query("SELECT t.*, s.name as section_name, s.icon as section_icon FROM tables t LEFT JOIN sections s ON t.section_id = s.id ORDER BY COALESCE(s.sort_order, 999), t.sort_order, t.id")->fetchAll();
 
 // Fetch categories and menu items
 $categories = [];
@@ -368,19 +365,23 @@ $page_title = "New Order";
 
             <div id="order-flash" class="order-flash"></div>
 
-            <!-- Table Selector -->
-            <div class="table-selector">
-                <label style="font-weight: 700; font-size: 0.95rem;"><i class="fas fa-chair" style="margin-right: 6px;"></i> Table:</label>
-                <select id="table-select" onchange="onTableChange()">
-                    <option value="">— Select a table —</option>
-                    <?php foreach ($tables as $tbl): ?>
-                        <option value="<?= $tbl['id'] ?>" data-status="<?= $tbl['status'] ?>">
-                            <?= htmlspecialchars($tbl['name']) ?> (<?= ucfirst($tbl['status']) ?>, Cap: <?= $tbl['capacity'] ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <span id="table-status-badge" class="table-status-indicator" style="display:none;"></span>
-            </div>
+<!-- Location & Table Selector -->
+<div class="table-selector">
+  <label style="font-weight:700; font-size:0.95rem;"><i class="fas fa-map-marker-alt" style="margin-right:6px; color:var(--primary-color);"></i> Location:</label>
+  <select id="section-select" onchange="onSectionChange()" style="padding:10px 16px; border-radius:10px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-main); font-size:1rem; min-width:180px;">
+    <option value="">— Select location —</option>
+    <?php foreach ($sections as $s): ?>
+      <option value="<?= $s['id'] ?>"><?= htmlspecialchars($s['name']) ?> (<?= $s['free_tables'] ?> free)</option>
+    <?php endforeach; ?>
+  </select>
+
+  <label style="font-weight:700; font-size:0.95rem; margin-left:6px;"><i class="fas fa-chair" style="margin-right:6px;"></i> Table:</label>
+  <select id="table-select" onchange="onTableChange()" disabled style="padding:10px 16px; border-radius:10px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-muted); font-size:1rem; min-width:200px; opacity:0.55;">
+    <option value="">— Select table —</option>
+  </select>
+  <span id="table-status-badge" class="table-status-indicator" style="display:none;"></span>
+  <span id="no-table-msg" style="display:none; font-size:0.8rem; font-weight:700; color:#ef4444; margin-left:4px;"><i class="fas fa-ban"></i> No free tables in this location</span>
+</div>
 
             <div class="new-order-layout">
                 <!-- Left: Menu List -->
