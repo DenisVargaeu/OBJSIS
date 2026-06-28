@@ -1,8 +1,8 @@
-# 🍽️ OBJSIS V2 - Restaurant Management System
+# 🍽️ OBJSIS V2 — FINAL FULL RELEASE 🎉
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-2.7.1-orange?style=for-the-badge)](https://github.com/DenisVargaeu/OBJSIS/releases)
+[![Version](https://img.shields.io/badge/version-4.0.0_FINAL-orange?style=for-the-badge)](https://github.com/DenisVargaeu/OBJSIS/releases)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple?style=for-the-badge)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-blue?style=for-the-badge)](https://www.mysql.com/)
 [![CSS](https://img.shields.io/badge/CSS3-Glassmorphism-ff69b4?style=for-the-badge)](#)
@@ -14,7 +14,7 @@
 [![Last Commit](https://img.shields.io/github/last-commit/DenisVargaeu/OBJSIS?style=flat-square&logo=github)](https://github.com/DenisVargaeu/OBJSIS/commits/main)
 [![Open Issues](https://img.shields.io/github/issues/DenisVargaeu/OBJSIS?style=flat-square&logo=github)](https://github.com/DenisVargaeu/OBJSIS/issues)
 
-**A Modern, Full-Featured Restaurant Management & POS System**
+**A Modern, Full-Featured Restaurant Management & POS System — FINAL FULL VERSION 🎉**
 
 [Quick Start](#-quick-start) • [Features](#-features) • [Installation](#-installation) • [Documentation](#-documentation) • [License](#-license)
 
@@ -416,7 +416,7 @@ Customize colors in `assets/css/theme-v2.css`:
 
 ## 📈 Roadmap
 
-### Version 4.0.0 (Current) ✅
+### 🎉 Version 4.0.0 — FINAL FULL RELEASE (no beta!)
 - [x] Restaurant Section / Room layout editor
 - [x] Visual section columns — drag tables between rooms
 - [x] Per-section add table, rename, delete
@@ -528,40 +528,41 @@ While this is a proprietary project, we welcome bug reports and feature suggesti
 
 ## 📝 Release Notes
 
-### v4.0.0 — 2026-06-28
+### 🎉 v4.0.0 FINAL FULL RELEASE — 2026-06-28
+**This is the complete, production-ready release. No beta. No placeholders. Everything works out of the box.**
 
-**New: Restaurant Section / Room Layout**
-- New `sections` table — create named rooms (Main Hall, Terrace, Bar, Private Room…)
-- Tables now have `section_id` + `sort_order` for visual layout positioning
-- `admin/tables.php` fully rebuilt as **Section Layout Manager**:
-  - Each section shown as a column/card with its own header and table count
-  - Add, rename, reorder, or delete sections from the page
-  - Add table directly into a section; move between sections via edit modal
-  - Occupation dropdown (Free / Occupied / Reserved) on every table card
-  - Unassigned tables shown in a dashed "Unassigned" column
-- 4 new API actions: `add_section`, `edit_section`, `delete_section`, `update_table_section`
-- `add_table` and `edit_table` now accept `section_id` and `sort_order`
+🏠 **Restaurant Section / Room Layout**
+- New `sections` table — create and manage unlimited restaurant rooms (Main Hall, Terrace, Bar, Private Room…)
+- Tables now store `section_id` + `sort_order` for true visual layout positioning
+- `admin/tables.php` rebuilt as **Section Layout Manager**:
+  - Each section shown as its own card/column with icon and live table-count badge
+  - Add, rename, reorder, or delete sections from the page directly
+  - Add table straight into the chosen section from its column
+  - Full edit modal — change name, capacity, section, and sort order
+  - Occupation dropdown on every card: 🟢 Free / 🔴 Occupied / 🟡 Reserved
+  - Tables with active orders show a lock icon
+  - Unassigned tables shown in a dashed-border "Unassigned" column
+- 6 new API actions: `add_section`, `edit_section`, `delete_section`, `update_table_section`
+- `add_table`, `edit_table` accept `section_id` and `sort_order`
 
-**New: Receipt Settings Editor**
-- New `admin/receipt_editor.php` page under `manage_menu` permission
+📋 **Receipt Settings Editor**
+- New `admin/receipt_editor.php`
 - Live preview sidebar updates as you type
-- Edit: restaurant name, address, phone, VAT ID, company reg. ID
-- Edit: receipt header text, footer message, currency, tax rate, tax label
-- Toggle: restaurant name badge, QR code placeholder
-- Save / Reset to defaults
+- Editable: restaurant name, address, phone, VAT ID, company reg. ID
+- Editable: header text, footer message, currency, tax rate, tax label
+- Toggles: restaurant name badge, QR placeholder
+- Save and Reset to defaults
+- Permission: `manage_menu`
 
-**Fix: Kitchen KDS — Run Kitchen Button**
-- Missing CSRF token in `updateStatus()` AJAX payload — now included
-- Undefined PHP variables `$new_status` / `$order_id` — now read from `$_POST`
+👮 **Role Permission Editor**
+- Full CRUD page for roles (`admin/roles.php`)
+- Per-role page-access control through grouped checkboxes + granular tags
+- Protected admin role, safe delete with user-disassociation warning
+- 4 new API actions with CSRF validation and proper error handling
 
-**Fix: Role Permissions Modal**
-- Rewrote permission save JS to use `data-permid` attributes
-- No more silent failures when opening the permissions modal
-
-**Changes**
-- Version bumped to **4.0.0** (`config/version.php`)
-- NEW migration script: `sql/update.sql` — safe to re-run, use in Admin → Updates or phpMyAdmin
-- Schema: `tables.status` enum now includes `reserved`; existing rows remain valid
+👨‍🍳 **Kitchen KDS Fix**
+- "Run Kitchen" and "Done / Ready" buttons now work correctly
+- CSRF token and PHP variable fixes in `admin/kitchen.php`
 
 ---
 - Role Permission Editor — per-role page-access control

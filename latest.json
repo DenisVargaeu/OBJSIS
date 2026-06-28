@@ -1,0 +1,6 @@
+{
+  "version": "2.6.1",
+  "url": "https://github.com/DenisVargaeu/OBJSIS/releases/download/b2.5.1/OBJSIS-Beta.2.5.1.zip",
+  "sql": "https://github.com/DenisVargaeu/OBJSIS/blob/main/sql/run_migrate.php",
+  "notes": "Role Update"
+}  
