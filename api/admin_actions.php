@@ -112,6 +112,11 @@ case 'add_role':
   $rname = strtolower(trim($_POST['role_name']));
   $dname = trim($_POST['display_name']);
   if (empty($dname)) $dname = ucfirst($rname);
+  $exists = $pdo->query("SELECT id FROM roles WHERE name = " . $pdo->quote($rname))->fetchColumn();
+  if ($exists) {
+    echo json_encode(['success' => false, 'message' => 'Role name "' . $rname . '" already exists']);
+    break;
+  }
   $stmt = $pdo->prepare("INSERT INTO roles (name, display_name) VALUES (?, ?)");
   $stmt->execute([$rname, $dname]);
   echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);

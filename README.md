@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-2.6.0-orange?style=for-the-badge)](https://github.com/DenisVargaeu/OBJSIS/releases)
+[![Version](https://img.shields.io/badge/version-2.7.1-orange?style=for-the-badge)](https://github.com/DenisVargaeu/OBJSIS/releases)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple?style=for-the-badge)](https://www.php.net/)
 [![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-blue?style=for-the-badge)](https://www.mysql.com/)
 [![CSS](https://img.shields.io/badge/CSS3-Glassmorphism-ff69b4?style=for-the-badge)](#)
@@ -49,6 +49,7 @@ OBJSIS V2 is a **professional-grade restaurant management system** built with PH
 | 📦 **Inventory Control** | Stock tracking, recipe management, and automatic deduction |
 | 👥 **Employee Management** | Role-based access, shift tracking, and performance monitoring |
 | 📈 **Advanced Reports** | Sales analytics, employee performance, and business insights |
+| 🛡️ **Role Permission Editor** | Per-role page-access control — admins can fine-tune which menu pages each role may use |
 
 ---
 
@@ -408,16 +409,12 @@ Customize colors in `assets/css/theme-v2.css`:
 
 ## 📈 Roadmap
 
-### Version 2.6.0 (Current) ✅
-- [x] Modular addon system
-- [x] API Manager PRO
-- [x] Terminal Pro Ultra
-- [x] Real-time dashboard
-- [x] KDS with audio alerts
-- [x] Glassmorphic UI
-- [x] Multi-currency support
-
-### Version 2.7.0 (In Development)
+### Version 2.7.1 (Current) ✅
+- [x] Role Permission Editor — per-role page-access control
+- [x] KDS bugfix: "Run Kitchen" button now works correctly
+- [x] CSRF token fix on kitchen status updates
+- [x] Role permissions modal JS fix — selection now saves immediately
+- [x] Duplicate role name validation on creation
 - [ ] Training mode implementation
 - [ ] Multi-language support (SK, EN, DE, CZ)
 - [ ] Mobile staff application
@@ -516,6 +513,47 @@ While this is a proprietary project, we welcome bug reports and feature suggesti
 - 🐛 [Report a Bug](https://github.com/DenisVargaeu/OBJSIS/issues/new?template=bug_report.md)
 - 💡 [Request a Feature](https://github.com/DenisVargaeu/OBJSIS/issues/new?template=feature_request.md)
 - 💬 [Join Discussions](https://github.com/DenisVargaeu/OBJSIS/discussions)
+
+---
+
+## 📝 Release Notes
+
+### v2.7.1 — 2026-06-28
+
+**New: Role Permission Editor**
+- Added full **Roles management page** with CRUD for roles
+- Admins can now choose **exactly which pages/menu sections** each role can access
+- 4 new API actions: `add_role`, `edit_role`, `delete_role`, `update_role_permissions`
+- Admin role is protected from edits; deleting a role warns and disassociates users first
+
+**Fix: Kitchen KDS "Run Kitchen" Button**
+- Button was completely unresponsive due to missing CSRF token in the AJAX payload
+- PHP handler was reading undefined `$new_status` / `$order_id` variables
+- Both issues fixed in `admin/kitchen.php` — buttons now work reliably
+
+**Fix: Role permissions editor modal**
+- Rebuilt JS to use reliable `data-permid` attributes instead of fragile `onclick` parsing
+- `savePermissions()` correctly updates the card preview without full page reload
+- Duplicate role name now returns a proper error instead of crashing
+
+**Changes**
+- Bumped version to `2.7.1` (`config/version.php`)
+
+**Previous Versions:**
+
+### v2.7.0 — 2026-06-28
+- Role Permission Editor — per-role page-access control
+- KDS bugfix: "Run Kitchen" button now works
+- CSRF token fix on kitchen status updates
+
+### v2.6.0
+- Modular addon system
+- API Manager PRO
+- Terminal Pro Ultra
+- Real-time dashboard
+- KDS with audio alerts
+- Glassmorphic UI
+- Multi-currency support
 
 ---
 

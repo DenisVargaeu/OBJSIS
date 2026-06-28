@@ -282,13 +282,13 @@ foreach ($permissions as $p) {
 
       <div class="role-perms-section">
         <h4>Active Permissions (<?= count($perms) ?>)</h4>
-        <div>
-          <?php if (count($perms) === 0): ?>
+        <div id="role-perms-container-<?= $rid ?>">
+          <?php if (count($perms) === 0): $myPerms = []; ?>
             <span style="font-size:0.8rem; color: var(--text-muted, #64748b);">No permissions assigned</span>
-          <?php else: foreach ($perms as $rp): ?>
-            <span class="perm-tag active" title="<?= htmlspecialchars($rp['perm_name']) ?>: <?= htmlspecialchars($rp['perm_desc']) ?>">
+          <?php else: $myPerms = array_column($perms, 'permission_id'); foreach ($perms as $rp): ?>
+            <span class="perm-tag active" data-permid="<?= $rp['permission_id'] ?>" data-roleid="<?= $rid ?>" title="<?= htmlspecialchars($rp['perm_name']) ?>: <?= htmlspecialchars($rp['perm_desc']) ?>">
               <?= htmlspecialchars(ucwords(str_replace(['_', '-'], ' ', $rp['perm_name']))) ?>
-              <?php if (!$is_admin): ?><i class="fas fa-times" style="font-size:0.65rem; margin-left:3px; opacity:0.7; cursor:pointer;" onclick="togglePerm(<?= $rid ?>, <?= $rp['permission_id'] ?>)"></i><?php endif; ?>
+              <?php if (!$is_admin): ?><i class="fas fa-times" style="font-size:0.65rem; margin-left:3px; opacity:0.7; cursor:pointer;"></i><?php endif; ?>
             </span>
           <?php endforeach; endif; ?>
         </div>
@@ -424,25 +424,41 @@ foreach ($permissions as $p) {
 
 <script>
 const rolesData = <?= json_encode(array_map(fn($r)=>['id'=>$r['id'],'name'=>$r['name'],'display_name'=>$r['display_name'],'user_count'=>$r['user_count']], $roles)) ?>;
+const rolesPerms = <?= json_encode(array_values($role_perms)) ?>;
 let currentPermRoleId = null;
 
 function closeModal(id) {
   document.getElementById(id).classList.remove('active');
 }
 
-function openAddRoleModal() {
-  document.getElementById('add-role-alert').innerHTML = '';
-  document.querySelector('#add-role-modal [name="display_name"]').value = '';
-  document.querySelector('#add-role-modal [name="role_name"]').value = '';
-  document.querySelectorAll('#add-perm-grid .perm-tag').forEach(t => t.classList.remove('active'));
-  document.getElementById('add-role-modal').classList.add('active');
+function getActivePermIds(roleId) {
+  const container = document.getElementById('role-perms-container-' + roleId);
+  if (!container) return rolesPerms[roleId] ? rolesPerms[roleId].map(p => p.permission_id) : [];
+  return [...container.querySelectorAll('.perm-tag[data-permid]')].map(t => parseInt(t.dataset.permid));
 }
 
-function openEditModal(id, display_name) {
-  document.getElementById('edit-role-id').value = id;
-  document.getElementById('edit-display-name').value = display_name;
-  document.getElementById('edit-role-alert').innerHTML = '';
-  document.getElementById('edit-role-modal').classList.add('active');
+function setActivePermIds(roleId, permIds) {
+  const container = document.getElementById('role-perms-container-' + roleId);
+  if (!container) return;
+  const tags = container.querySelectorAll('.perm-tag[data-permid]');
+  tags.forEach(t => {
+    const pid = parseInt(t.dataset.permid);
+    t.classList.toggle('active', permIds.includes(pid));
+  });
+}
+
+function renderRoleCardPerms(roleId) {
+  const container = document.getElementById('role-perms-container-' + roleId);
+  if (!container) return;
+  const perms = rolesPerms[roleId] || [];
+  container.innerHTML = perms.map(p => `
+    <span class="perm-tag active" data-permid="${p.permission_id}" data-roleid="${roleId}" title="${p.perm_name}: ${p.perm_desc}">
+      ${p.perm_name.replace(/[_-]/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+    </span>
+  `).join('');
+  if (perms.length === 0) {
+    container.innerHTML = '<span style="font-size:0.8rem; color: var(--text-muted, #64748b);">No permissions assigned</span>';
+  }
 }
 
 function openPermModal(id, role_name) {
@@ -450,25 +466,15 @@ function openPermModal(id, role_name) {
   document.getElementById('perm-modal-title').textContent = role_name;
   document.getElementById('perm-modal-alert').innerHTML = '';
 
-  // Grab current role permissions via inline perms info
-  const card = document.getElementById('role-card-' + id);
-  const activeTags = card.querySelectorAll('.role-perms-section .perm-tag.active');
-  const activePids = new Set();
-  activeTags.forEach(t => {
-    const match = t.getAttribute('onclick');
-    if (match) {
-      const m = match.match(/togglePerm\((\d+),\s*(\d+)\)/);
-      if (m) activePids.add(parseInt(m[2]));
-    }
-  });
+  const activePerms = getActivePermIds(id);
 
   document.querySelectorAll('#perm-modal-grid .perm-tag').forEach(t => {
-    t.classList.toggle('active', activePids.has(parseInt(t.dataset.pid)));
+    t.classList.toggle('active', activePerms.includes(parseInt(t.dataset.pid)));
   });
 
   document.querySelectorAll('#page-assign-section .page-group-cb').forEach(cb => {
     const needed = cb.dataset.perms.split(',').map(Number);
-    const allActive = needed.every(pid => activePids.has(pid));
+    const allActive = needed.every(pid => activePerms.includes(pid));
     cb.checked = allActive;
   });
 
@@ -477,8 +483,7 @@ function openPermModal(id, role_name) {
 
 function togglePageGroup(cb) {
   const needed = cb.dataset.perms.split(',').map(Number);
-  const gridTags = document.querySelectorAll('#perm-modal-grid .perm-tag');
-  gridTags.forEach(t => {
+  document.querySelectorAll('#perm-modal-grid .perm-tag').forEach(t => {
     const pid = parseInt(t.dataset.pid);
     if (needed.includes(pid)) {
       t.classList.toggle('active', cb.checked);
@@ -543,42 +548,6 @@ function editRole(e) {
     });
 }
 
-function togglePerm(roleId, permId) {
-  // Fetch current state from the card
-  const card = document.getElementById('role-card-' + roleId);
-  const tag = card.querySelector(`.role-perms-section .perm-tag[onclick*="${permId}"]`) ||
-              [...card.querySelectorAll('.role-perms-section .perm-tag.active')].find(t => t.getAttribute('onclick').includes(String(permId)));
-  const willAdd = !(tag && tag.classList.contains('active'));
-
-  const fd = new FormData();
-  fd.append('action', 'update_role_permissions');
-  fd.append('role_id', roleId);
-  fd.append('csrf_token', OBJSIS_CSRF_TOKEN);
-
-  // Determine current active perms
-  const activePerms = [];
-  card.querySelectorAll('.role-perms-section .perm-tag.active').forEach(t => {
-    const m = t.getAttribute('onclick')?.match(/togglePerm\((\d+),\s*(\d+)\)/);
-    if (m) activePerms.push(m[2]);
-  });
-  if (willAdd && !activePerms.includes(String(permId))) {
-    activePerms.push(String(permId));
-  } else if (!willAdd) {
-    const idx = activePerms.indexOf(String(permId));
-    if (idx >= 0) activePerms.splice(idx, 1);
-  }
-  fd.append('permission_ids', JSON.stringify(activePerms));
-
-  fetch('../api/admin_actions.php', { method: 'POST', body: fd })
-    .then(r => r.json())
-    .then(res => {
-      if (res.success) {
-        const tag2 = card.querySelector(`.perm-tag[onclick*="${permId}"]`);
-        if (tag2) tag2.classList.toggle('active', willAdd);
-      }
-    });
-}
-
 function savePermissions() {
   const selectedPerms = [];
   document.querySelectorAll('#perm-modal-grid .perm-tag.active').forEach(t => {
@@ -594,6 +563,8 @@ function savePermissions() {
     .then(res => {
       const alertBox = document.getElementById('perm-modal-alert');
       if (res.success) {
+        rolesPerms[currentPermRoleId] = selectedPerms.map(pid => ({ permission_id: parseInt(pid) }));
+        renderRoleCardPerms(currentPermRoleId);
         alertBox.innerHTML = '<div class="alert-box success">Permissions saved!</div>';
         setTimeout(() => location.reload(), 600);
       } else {
