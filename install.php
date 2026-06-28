@@ -414,119 +414,17 @@ $step = $_GET['step'] ?? 1;
                     $pdo = new PDO("mysql:host=$db_host;dbname=$db_name;charset=utf8mb4", $db_user, $db_pass);
                     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                    // Create tables
-                    $tables = [
-                        'users' => "CREATE TABLE IF NOT EXISTS users (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            name VARCHAR(50) NOT NULL,
-                            pin_hash VARCHAR(255) NOT NULL,
-                            role ENUM('admin', 'cook', 'waiter', 'inventory') NOT NULL,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )",
-                        'categories' => "CREATE TABLE IF NOT EXISTS categories (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            name VARCHAR(100) NOT NULL,
-                            sort_order INT DEFAULT 0
-                        )",
-                        'menu_items' => "CREATE TABLE IF NOT EXISTS menu_items (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            category_id INT,
-                            name VARCHAR(100) NOT NULL,
-                            description TEXT,
-                            price DECIMAL(10, 2) NOT NULL,
-                            image_url VARCHAR(255),
-                            is_available BOOLEAN DEFAULT TRUE,
-                            allergens VARCHAR(255),
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
-                        )",
-                        'tables' => "CREATE TABLE IF NOT EXISTS tables (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            name VARCHAR(50) NOT NULL,
-                            capacity INT DEFAULT 4,
-                            status ENUM('free', 'occupied', 'reserved') DEFAULT 'free',
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )",
-                        'orders' => "CREATE TABLE IF NOT EXISTS orders (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            table_number INT NOT NULL,
-                            status ENUM('received', 'preparing', 'ready', 'delivered', 'paid', 'cancelled') DEFAULT 'received',
-                            total_price DECIMAL(10, 2) DEFAULT 0.00,
-                            discount_amount DECIMAL(10, 2) DEFAULT 0.00,
-                            coupon_code VARCHAR(20) DEFAULT NULL,
-                            note TEXT,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                        )",
-                        'order_items' => "CREATE TABLE IF NOT EXISTS order_items (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            order_id INT NOT NULL,
-                            menu_item_id INT NOT NULL,
-                            quantity INT DEFAULT 1,
-                            price_at_time DECIMAL(10, 2) NOT NULL,
-                            note TEXT,
-                            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-                            FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
-                        )",
-                        'coupons' => "CREATE TABLE IF NOT EXISTS coupons (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            code VARCHAR(20) NOT NULL UNIQUE,
-                            type ENUM('fixed', 'percent') NOT NULL,
-                            value DECIMAL(10, 2) NOT NULL,
-                            is_active BOOLEAN DEFAULT TRUE,
-                            expiration_date DATETIME DEFAULT NULL,
-                            max_uses INT DEFAULT NULL,
-                            current_uses INT DEFAULT 0,
-                            one_time_use BOOLEAN DEFAULT FALSE,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )",
-                        'shifts' => "CREATE TABLE IF NOT EXISTS shifts (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            user_id INT NOT NULL,
-                            start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-                            end_time DATETIME DEFAULT NULL,
-                            cash_start DECIMAL(10, 2) DEFAULT 0.00,
-                            cash_end DECIMAL(10, 2) DEFAULT 0.00,
-                            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-                        )",
-                        'settings' => "CREATE TABLE IF NOT EXISTS settings (
-                            setting_key VARCHAR(50) PRIMARY KEY,
-                            setting_value TEXT,
-                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                        )",
-                        'inventory' => "CREATE TABLE IF NOT EXISTS inventory (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            name VARCHAR(100) NOT NULL,
-                            current_quantity DECIMAL(10,2) DEFAULT 0.00,
-                            unit VARCHAR(20) DEFAULT 'pcs',
-                            critical_threshold DECIMAL(10,2) DEFAULT 0.00,
-                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                        )",
-                        'menu_item_ingredients' => "CREATE TABLE IF NOT EXISTS menu_item_ingredients (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            menu_item_id INT NOT NULL,
-                            inventory_id INT NOT NULL,
-                            quantity_required DECIMAL(10,2) NOT NULL,
-                            FOREIGN KEY (menu_item_id) REFERENCES menu_items(id) ON DELETE CASCADE,
-                            FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
-                        )",
-                        'inventory_logs' => "CREATE TABLE IF NOT EXISTS inventory_logs (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            inventory_id INT NOT NULL,
-                            user_id INT,
-                            change_type ENUM('purchase', 'sale', 'waste', 'correction') NOT NULL,
-                            quantity_change DECIMAL(10,2) NOT NULL,
-                            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                            FOREIGN KEY (inventory_id) REFERENCES inventory(id) ON DELETE CASCADE
-                        )"
-                    ];
+        // Execute full schema from sql/schema.sql
+        $schema_path = __DIR__ . '/sql/schema.sql';
+        if (file_exists($schema_path)) {
+            $sql = file_get_contents($schema_path);
+            $pdo->exec($sql);
+            $success_count++;
+        } else {
+            throw new Exception('Schema file not found: sql/schema.sql');
+        }
 
-                    foreach ($tables as $name => $sql) {
-                        $pdo->exec($sql);
-                        $success_count++;
-                    }
-
-                    // --- Schema Synchronization (Robustness Fix) ---
+        // --- Schema Synchronization (Robustness Fix) ---
                     // Ensure the 'shifts' table has the correct columns (converting old schema if needed)
                     try {
                         $stmt = $pdo->query("SHOW COLUMNS FROM shifts");

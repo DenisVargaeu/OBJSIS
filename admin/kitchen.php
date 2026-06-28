@@ -18,8 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
         }
         die("CSRF Token Invalid");
     }
-    $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
-    $stmt->execute([$new_status, $order_id]);
+  $order_id = $_POST['order_id'] ?? 0;
+  $new_status = $_POST['status'] ?? '';
+  $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
+  $stmt->execute([$new_status, $order_id]);
     
     if(isset($_POST['ajax'])) {
         echo json_encode(['success' => true]);
@@ -251,8 +253,9 @@ $page_title = "Kitchen Display System";
             const formData = new FormData();
             formData.append('update_status', '1');
             formData.append('order_id', id);
-            formData.append('status', status);
-            formData.append('ajax', '1');
+  formData.append('status', status);
+  formData.append('csrf_token', OBJSIS_CSRF_TOKEN);
+  formData.append('ajax', '1');
 
             const res = await fetch('kitchen.php', { method: 'POST', body: formData });
             const data = await res.json();

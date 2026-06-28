@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `settings` (
   PRIMARY KEY (`setting_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `settings` (`setting_key`, `setting_value`) VALUES
+INSERT IGNORE INTO `settings` (`setting_key`, `setting_value`) VALUES
 ('restaurant_name', 'My Restaurant');
 
 -- --------------------------------------------------------
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Default admin (PIN: 1234)
-INSERT INTO `users` (`name`, `pin_hash`, `role`) VALUES
+INSERT IGNORE INTO `users` (`name`, `pin_hash`, `role`) VALUES
 ('Admin', '$2y$10$R9h/lIPzLpC.qGvFh9U9u.u.u.u.u.u.u.u.u.u.u.u.u.u.u.u.', 'admin');
 
 -- --------------------------------------------------------
