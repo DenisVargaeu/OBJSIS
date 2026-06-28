@@ -135,6 +135,9 @@ $page_title = "Table Layout Manager";
 .status-select.status-occupied { color: #ef4444; border-color: rgba(239,68,68,.4); }
 .status-select.status-reserved { color: #f59e0b; border-color: rgba(245,158,11,.4); }
 
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; justify-content: center; align-items: center; }
+.modal-overlay.active { display: flex; }
+
 .assign-select {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
@@ -273,7 +276,7 @@ $page_title = "Table Layout Manager";
 </div>
 
 <!-- Section Modal (add / edit) -->
-<div id="section-modal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,23,.85); z-index:1000; justify-content:center; align-items:center; backdrop-filter:blur(8px);">
+<div id="section-modal" class="modal-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,23,.85); z-index:1000; justify-content:center; align-items:center; backdrop-filter:blur(8px);">
   <div class="stat-card" style="width:420px; padding:26px; flex-direction:column; align-items:stretch;">
     <h3 id="section-modal-title" style="margin-bottom:18px; font-size:1.2rem; font-weight:800;">New Section</h3>
     <form onsubmit="event.preventDefault(); submitSection(this);">
@@ -301,7 +304,7 @@ $page_title = "Table Layout Manager";
 </div>
 
 <!-- Table Modal (add / edit) -->
-<div id="table-modal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,23,.85); z-index:1000; justify-content:center; align-items:center; backdrop-filter:blur(8px);">
+<div id="table-modal" class="modal-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(2,6,23,.85); z-index:1000; justify-content:center; align-items:center; backdrop-filter:blur(8px);">
   <div class="stat-card" style="width:400px; padding:26px; flex-direction:column; align-items:stretch;">
     <h3 id="table-modal-title" style="margin-bottom:18px; font-size:1.2rem; font-weight:800;">Add Table</h3>
     <form onsubmit="event.preventDefault(); submitTable(this);">

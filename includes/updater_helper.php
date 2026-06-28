@@ -112,12 +112,20 @@ class OBJSIS_Updater
         curl_setopt($ch, CURLOPT_FILE, $fp);
         curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
-        $success = curl_exec($ch);
-        curl_close($ch);
-        fclose($fp);
-
-        return $success !== false;
-    }
+  $r = $ch->exec();
+  if ($r === false) {
+    fclose($fp);
+    return false;
+  }
+  $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+  curl_close($ch);
+  if ($code >= 400 || filesize($path) < 1024) {
+    @unlink($path);
+    return false;
+  }
+  fclose($fp);
+  return true;
+}
 
     private function extractUpdate($zipPath)
     {
