@@ -4,7 +4,7 @@ require_once '../config/db.php';
 require_once '../includes/functions.php';
 requireLogin();
 
-checkPermission('manage_settings');
+checkPermission('manage_menu');
 
 $page_title = "Receipt Editor";
 

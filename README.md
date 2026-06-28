@@ -161,7 +161,8 @@ OBJSIS V2/
 │   ├── menu.php         # Menu & item management
 │   ├── orders.php       # Order management
 │   ├── new_order.php    # Create new order
-│   ├── tables.php       # Table management
+│ ├── tables.php # Section layout + table management
+│ ├── receipt_editor.php # Receipt template settings
 │   ├── inventory.php    # Inventory & Stock
 │   ├── recipes.php      # Recipe management
 │   ├── users.php        # Staff management
@@ -415,12 +416,15 @@ Customize colors in `assets/css/theme-v2.css`:
 
 ## 📈 Roadmap
 
-### Version 2.7.1 (Current) ✅
+### Version 4.0.0 (Current) ✅
+- [x] Restaurant Section / Room layout editor
+- [x] Visual section columns — drag tables between rooms
+- [x] Per-section add table, rename, delete
+- [x] Tables now have sort_order for layout positioning
+- [x] Receipt editor with live preview
+- [x] Occupation status dropdown (free/occupied/reserved) on every card
+- [x] Kitchen KDS bugfix — Run Kitchen button works
 - [x] Role Permission Editor — per-role page-access control
-- [x] KDS bugfix: "Run Kitchen" button now works correctly
-- [x] CSRF token fix on kitchen status updates
-- [x] Role permissions modal JS fix — selection now saves immediately
-- [x] Duplicate role name validation on creation
 - [ ] Training mode implementation
 - [ ] Multi-language support (SK, EN, DE, CZ)
 - [ ] Mobile staff application
@@ -524,30 +528,42 @@ While this is a proprietary project, we welcome bug reports and feature suggesti
 
 ## 📝 Release Notes
 
-### v2.7.1 — 2026-06-28
+### v4.0.0 — 2026-06-28
 
-**New: Role Permission Editor**
-- Added full **Roles management page** with CRUD for roles
-- Admins can now choose **exactly which pages/menu sections** each role can access
-- 4 new API actions: `add_role`, `edit_role`, `delete_role`, `update_role_permissions`
-- Admin role is protected from edits; deleting a role warns and disassociates users first
+**New: Restaurant Section / Room Layout**
+- New `sections` table — create named rooms (Main Hall, Terrace, Bar, Private Room…)
+- Tables now have `section_id` + `sort_order` for visual layout positioning
+- `admin/tables.php` fully rebuilt as **Section Layout Manager**:
+  - Each section shown as a column/card with its own header and table count
+  - Add, rename, reorder, or delete sections from the page
+  - Add table directly into a section; move between sections via edit modal
+  - Occupation dropdown (Free / Occupied / Reserved) on every table card
+  - Unassigned tables shown in a dashed "Unassigned" column
+- 4 new API actions: `add_section`, `edit_section`, `delete_section`, `update_table_section`
+- `add_table` and `edit_table` now accept `section_id` and `sort_order`
 
-**Fix: Kitchen KDS "Run Kitchen" Button**
-- Button was completely unresponsive due to missing CSRF token in the AJAX payload
-- PHP handler was reading undefined `$new_status` / `$order_id` variables
-- Both issues fixed in `admin/kitchen.php` — buttons now work reliably
+**New: Receipt Settings Editor**
+- New `admin/receipt_editor.php` page under `manage_menu` permission
+- Live preview sidebar updates as you type
+- Edit: restaurant name, address, phone, VAT ID, company reg. ID
+- Edit: receipt header text, footer message, currency, tax rate, tax label
+- Toggle: restaurant name badge, QR code placeholder
+- Save / Reset to defaults
 
-**Fix: Role permissions editor modal**
-- Rebuilt JS to use reliable `data-permid` attributes instead of fragile `onclick` parsing
-- `savePermissions()` correctly updates the card preview without full page reload
-- Duplicate role name now returns a proper error instead of crashing
+**Fix: Kitchen KDS — Run Kitchen Button**
+- Missing CSRF token in `updateStatus()` AJAX payload — now included
+- Undefined PHP variables `$new_status` / `$order_id` — now read from `$_POST`
+
+**Fix: Role Permissions Modal**
+- Rewrote permission save JS to use `data-permid` attributes
+- No more silent failures when opening the permissions modal
 
 **Changes**
-- Bumped version to `2.7.1` (`config/version.php`)
+- Version bumped to **4.0.0** (`config/version.php`)
+- NEW migration script: `sql/update.sql` — safe to re-run, use in Admin → Updates or phpMyAdmin
+- Schema: `tables.status` enum now includes `reserved`; existing rows remain valid
 
-**Previous Versions:**
-
-### v2.7.0 — 2026-06-28
+---
 - Role Permission Editor — per-role page-access control
 - KDS bugfix: "Run Kitchen" button now works
 - CSRF token fix on kitchen status updates

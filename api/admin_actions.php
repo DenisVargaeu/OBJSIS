@@ -187,16 +187,69 @@ case 'update_role_permissions':
             echo json_encode(['success' => true]);
             break;
 
-        // --- TABLE ACTIONS ---
-        case 'add_table':
-            checkPermission('manage_orders');
-            $name = $_POST['name'];
-            $capacity = $_POST['capacity'];
+// --- SECTION ACTIONS ---
+case 'add_section':
+  checkPermission('manage_orders');
+  $sname = trim($_POST['name']);
+  $sicon = trim($_POST['icon'] ?? 'fa-chair');
+  $sorder = (int)($_POST['sort_order'] ?? 0);
+  $stmt = $pdo->prepare("INSERT INTO sections (name, icon, sort_order) VALUES (?, ?, ?)");
+  $stmt->execute([$sname, $sicon, $sorder]);
+  echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+  break;
 
-            $stmt = $pdo->prepare("INSERT INTO tables (name, capacity) VALUES (?, ?)");
-            $stmt->execute([$name, $capacity]);
-            echo json_encode(['success' => true]);
-            break;
+case 'edit_section':
+  checkPermission('manage_orders');
+  $id = $_POST['id'];
+  $sname = trim($_POST['name']);
+  $sicon = trim($_POST['icon'] ?? 'fa-chair');
+  $sorder = (int)($_POST['sort_order'] ?? 0);
+  $stmt = $pdo->prepare("UPDATE sections SET name = ?, icon = ?, sort_order = ? WHERE id = ?");
+  $stmt->execute([$sname, $sicon, $sorder, $id]);
+  echo json_encode(['success' => true]);
+  break;
+
+case 'delete_section':
+  checkPermission('manage_orders');
+  $id = $_POST['id'];
+  $pdo->prepare("UPDATE tables SET section_id = NULL WHERE section_id = ?")->execute([$id]);
+  $pdo->prepare("DELETE FROM sections WHERE id = ?")->execute([$id]);
+  echo json_encode(['success' => true]);
+  break;
+
+case 'update_table_section':
+  checkPermission('manage_orders');
+  $tid = $_POST['table_id'];
+  $sid = $_POST['section_id'];
+  $sid = $sid === '' || $sid === '0' || $sid === 'null' ? null : (int)$sid;
+  $stmt = $pdo->prepare("UPDATE tables SET section_id = ? WHERE id = ?");
+  $stmt->execute([$sid, $tid]);
+  echo json_encode(['success' => true]);
+  break;
+
+// --- TABLE ACTIONS ---
+case 'add_table':
+  checkPermission('manage_orders');
+  $name = trim($_POST['name']);
+  $capacity = (int)($_POST['capacity'] ?? 4);
+  $section_id = isset($_POST['section_id']) && $_POST['section_id'] !== '' ? (int)$_POST['section_id'] : null;
+  $sort_order = (int)($_POST['sort_order'] ?? 0);
+  $stmt = $pdo->prepare("INSERT INTO tables (name, capacity, section_id, sort_order) VALUES (?, ?, ?, ?)");
+  $stmt->execute([$name, $capacity, $section_id, $sort_order]);
+  echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
+  break;
+
+case 'edit_table':
+  checkPermission('manage_orders');
+  $id = $_POST['id'];
+  $name = trim($_POST['name']);
+  $capacity = (int)($_POST['capacity'] ?? 4);
+  $section_id = isset($_POST['section_id']) && $_POST['section_id'] !== '' ? (int)$_POST['section_id'] : null;
+  $sort_order = (int)($_POST['sort_order'] ?? 0);
+  $stmt = $pdo->prepare("UPDATE tables SET name = ?, capacity = ?, section_id = ?, sort_order = ? WHERE id = ?");
+  $stmt->execute([$name, $capacity, $section_id, $sort_order, $id]);
+  echo json_encode(['success' => true]);
+  break;
 
 case 'delete_table':
   checkPermission('manage_orders');

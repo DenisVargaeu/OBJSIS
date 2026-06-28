@@ -117,6 +117,23 @@ INSERT IGNORE INTO `users` (`name`, `pin_hash`, `role`) VALUES
 ('Admin', '$2y$10$R9h/lIPzLpC.qGvFh9U9u.u.u.u.u.u.u.u.u.u.u.u.u.u.u.u.', 'admin');
 
 -- --------------------------------------------------------
+-- 5. SECTIONS (Rooms / Areas)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `sections` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(80) NOT NULL,
+  `icon` varchar(50) DEFAULT 'fa-chair',
+  `sort_order` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT IGNORE INTO `sections` (`name`, `icon`, `sort_order`) VALUES
+  ('Main Hall',     'fa-utensils',    1),
+  ('Terrace',       'fa-sun',         2),
+  ('Bar',           'fa-wine-glass',  3),
+  ('Private Room',  'fa-door-closed', 4);
+
+-- --------------------------------------------------------
 -- 6. CATEGORIES
 -- --------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `categories` (
@@ -158,16 +175,20 @@ CREATE TABLE IF NOT EXISTS `tables` (
   `name` varchar(50) NOT NULL,
   `capacity` int(11) DEFAULT 4,
   `status` enum('free','occupied','reserved') DEFAULT 'free',
+  `section_id` int(11) DEFAULT NULL,
+  `sort_order` int(11) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `section_id` (`section_id`),
+  CONSTRAINT `tables_ibfk_1` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-INSERT INTO `tables` (`id`, `name`, `capacity`, `status`) VALUES
-(1, 'Table 1', 4, 'free'),
-(2, 'Table 2', 4, 'free'),
-(3, 'Table 3', 2, 'free'),
-(4, 'Table 4', 6, 'free'),
-(5, 'Table 5', 4, 'free');
+INSERT INTO `tables` (`id`, `name`, `capacity`, `status`, `section_id`, `sort_order`) VALUES
+  (1, 'Table 1', 4, 'free', 1, 1),
+  (2, 'Table 2', 4, 'free', 1, 2),
+  (3, 'Table 3', 2, 'free', 1, 3),
+  (4, 'Table 4', 6, 'free', 2, 1),
+  (5, 'Table 5', 4, 'free', 3, 1);
 
 -- --------------------------------------------------------
 -- 9. ORDERS
