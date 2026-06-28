@@ -82,9 +82,15 @@ OBJSIS V2 is a **professional-grade restaurant management system** built with PH
 
 ---
 
-## 🚀 Quick Start
+## ✅ Quick Start
 
-### Installation (5 Minutes)
+### 🎮 Try Demo First
+No installation needed — test the full version live at:
+**[https://objsis.denisvarga.eu](https://objsis.denisvarga.eu)**
+
+> Default demo credentials: PIN **`1234`**
+
+### Self-Hosted Installation (5 Minutes)
 
 #### Step 1: Deploy Files
 ```bash
